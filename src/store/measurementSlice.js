@@ -1,15 +1,17 @@
 ﻿import { createSlice } from "@reduxjs/toolkit";
 import { getFormattedTodayDate } from "../utils/dateUtil";
 
+let bodyParts = ["Weight", "Chest", "Stomach", "Waist", "Hips"];
+
 const measurementSlice = createSlice({
     name: "measurementsData",
     initialState: {
         dates: [],
-        bodyParts: ["Weight", "Chest", "Stomach", "Waist", "Hips"],
+        bodyParts: bodyParts,
         entries: [],
         newRow: {
             date: getFormattedTodayDate(),
-            entries: ["", "", "", "", "", "", "", ""], // Initialize with zeros or empty values
+            entries: Array(bodyParts.length).fill(""),
         },
     },
     reducers: {
