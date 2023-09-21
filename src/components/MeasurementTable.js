@@ -1,22 +1,38 @@
 ﻿import MeasurementRow from "./MeasurementRow";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    selectNewRow,
     selectDates,
     selectBodyParts,
     selectEntries,
     addNewRow,
 } from "../store/measurementSlice";
 import NewMeasurement from "./NewMeasurement";
+import { formatDateToDisplay } from "../utils/dateUtil";
+import toast from "react-hot-toast";
 
 const MeasurementTable = () => {
     const dispatch = useDispatch();
+    const newRow = useSelector(selectNewRow);
     const dates = useSelector(selectDates);
     const bodyParts = useSelector(selectBodyParts);
     const entries = useSelector(selectEntries);
 
     const handleAddRow = () => {
-        // Dispatch the action to add the new row
-        dispatch(addNewRow());
+        // If all entries are string and are empty
+        if (newRow.entries.every((entry) => typeof entry === "string" && entry.trim() === "")) {
+            toast.error("Atleast one value needs to be filled")
+            return
+        }
+
+        // If date already exists in the dates list
+        if (dates.some((date) => date === newRow.date)) {
+            toast.error("Date already exists")
+            return
+        }
+
+        const formattedDate = formatDateToDisplay(newRow.date);
+        dispatch(addNewRow(formattedDate));
     };
 
     return (
@@ -40,7 +56,7 @@ const MeasurementTable = () => {
                             entries={entries}
                         />
                     ))}
-                    <NewMeasurement />
+                    <NewMeasurement dateFormatHandler={formatDateToDisplay} />
                 </tbody>
             </table>
             <button onClick={handleAddRow}>Add</button>

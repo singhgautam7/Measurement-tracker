@@ -1,7 +1,13 @@
 ﻿import { useSelector, useDispatch } from "react-redux";
-import { selectNewRow, updateDate, updateMeasurementValue } from "../store/measurementSlice";
+import {
+    selectNewRow,
+    updateDate,
+    updateMeasurementValue,
+} from "../store/measurementSlice";
+import { getFormattedTodayDate } from "../utils/dateUtil";
+import { DEFAULT_DATE_FORMAT } from "../constants/constants";
 
-const NewMeasurement = () => {
+const NewMeasurement = ({ dateFormatHandler }) => {
     const dispatch = useDispatch();
     const newRow = useSelector(selectNewRow);
 
@@ -22,6 +28,8 @@ const NewMeasurement = () => {
                     type="date"
                     value={newRow.date}
                     onChange={handleDateChange}
+                    placeholder={DEFAULT_DATE_FORMAT}
+                    max={getFormattedTodayDate()}
                 />
             </td>
             {newRow.entries.map((entry, index) => (

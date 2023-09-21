@@ -1,26 +1,14 @@
 ﻿import { createSlice } from "@reduxjs/toolkit";
+import { getFormattedTodayDate } from "../utils/dateUtil";
 
 const measurementSlice = createSlice({
     name: "measurementsData",
     initialState: {
-        dates: ["2023-09-01", "2023-09-02", "2023-09-03"],
-        bodyParts: [
-            "Chest",
-            "Left Bicep",
-            "Right Bicep",
-            "Stomach",
-            "Waist",
-            "Hips",
-            "Left Thigh",
-            "Right Thigh",
-        ],
-        entries: [
-            [33, 44, 22, 55, 55, 66, 55, 66],
-            [33, 44, 22, 55, 55, 66, 55, 66],
-            [33, 44, 22, 55, 55, 66, 55, 66],
-        ],
+        dates: [],
+        bodyParts: ["Weight", "Chest", "Stomach", "Waist", "Hips"],
+        entries: [],
         newRow: {
-            date: "",
+            date: getFormattedTodayDate(),
             entries: ["", "", "", "", "", "", "", ""], // Initialize with zeros or empty values
         },
     },
@@ -34,21 +22,24 @@ const measurementSlice = createSlice({
             // Update the measurement value at the specified index in newEntry
             state.newRow.entries[index] = Number(value);
         },
-        addNewRow: (state) => {
+        addNewRow: (state, action) => {
+            const formattedDate = action.payload;
+
             // Add the new entry to the entries array
-            state.dates.push(state.newRow["date"]);
+            state.dates.push(formattedDate);
             state.entries.push(state.newRow["entries"]);
 
             // Reset the new entry
             state.newRow = {
-                date: "",
+                date: getFormattedTodayDate(),
                 entries: Array(state.bodyParts.length).fill(""),
             };
         },
     },
 });
 
-export const { updateDate, updateMeasurementValue, addNewRow } = measurementSlice.actions;
+export const { updateDate, updateMeasurementValue, addNewRow } =
+    measurementSlice.actions;
 export const selectDates = (state) => state.measurements.dates;
 export const selectBodyParts = (state) => state.measurements.bodyParts;
 export const selectEntries = (state) => state.measurements.entries;
