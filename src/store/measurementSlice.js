@@ -1,30 +1,26 @@
 ﻿import { createSlice } from "@reduxjs/toolkit";
 import { getFormattedTodayDate } from "../utils/dateUtil";
+import { getMeasurementInitialState } from "../utils/stateUtil";
 
-let bodyParts = ["Weight", "Chest", "Stomach", "Waist", "Hips"];
+console.log("getMeasurementInitialState() slice", getMeasurementInitialState())
 
 const measurementSlice = createSlice({
     name: "measurementsData",
-    initialState: {
-        dates: [],
-        bodyParts: bodyParts,
-        entries: [],
-        newRow: {
-            date: getFormattedTodayDate(),
-            entries: Array(bodyParts.length).fill(""),
-        },
-    },
+    initialState: getMeasurementInitialState(),
     reducers: {
         updateDate: (state, action) => {
+            console.log("updateDate state", state)
             // Update the date in the newEntry
             state.newRow.date = action.payload;
         },
         updateMeasurementValue: (state, action) => {
+            console.log("updateMeasurementValue state", state)
             const { index, value } = action.payload;
             // Update the measurement value at the specified index in newEntry
             state.newRow.entries[index] = Number(value);
         },
         addNewRow: (state, action) => {
+            console.log("addNewRow state", state)
             const formattedDate = action.payload;
 
             // Add the new entry to the entries array
