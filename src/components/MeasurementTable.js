@@ -11,6 +11,7 @@ import NewMeasurement from "./NewMeasurement";
 import { formatDateToDisplay } from "../utils/dateUtil";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
+import "./MeasurementTable.css"
 
 const MeasurementTable = () => {
     const dispatch = useDispatch();
@@ -63,7 +64,7 @@ const MeasurementTable = () => {
 
     return (
         <div>
-            <table>
+            <table className="measurement-table">
                 <thead>
                     <tr>
                         <th>Date</th>

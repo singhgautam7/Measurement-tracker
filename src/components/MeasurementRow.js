@@ -1,4 +1,6 @@
-﻿const MeasurementRow = ({ date, dateIndex, bodyParts, entries }) => {
+﻿import "./MeasurementRow.css"
+
+const MeasurementRow = ({ date, dateIndex, bodyParts, entries }) => {
     return (
         <tr key={dateIndex}>
             <td>{date}</td>

@@ -6,6 +6,7 @@ import {
 } from "../store/measurementSlice";
 import { getFormattedTodayDate } from "../utils/dateUtil";
 import { DEFAULT_DATE_FORMAT } from "../constants/constants";
+import "./NewMeasurement.css"
 
 const NewMeasurement = ({ dateFormatHandler }) => {
     const dispatch = useDispatch();
