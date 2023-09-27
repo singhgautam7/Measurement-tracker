@@ -1,5 +1,8 @@
 ﻿.new-measurement-number {
     size: "1";
-    width:55px;
+    width:50px;
     margin: 0;
+    text-align: center;
+    padding: 4px 8px;
+    border: 0px solid #ccc;
 }
