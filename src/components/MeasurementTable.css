@@ -61,7 +61,7 @@
   border-bottom-right-radius: 6px;
 }
 
-.add-new-measurement {
+.add-new-measurement-button {
     appearance: none;
     background-color: transparent;
     border: 1px solid #1a1a1a;
@@ -87,18 +87,18 @@
     will-change: transform;
 }
 
-.add-new-measurement:disabled {
+.add-new-measurement-button:disabled {
     pointer-events: none;
 }
 
-.add-new-measurement:hover {
+.add-new-measurement-button:hover {
     color: #fff;
     background-color: #1a1a1a;
     box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     transform: translateY(-2px);
 }
 
-.add-new-measurement:active {
+.add-new-measurement-button:active {
     box-shadow: none;
     transform: translateY(0);
 }

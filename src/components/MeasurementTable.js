@@ -85,19 +85,12 @@ const MeasurementTable = () => {
                                 entries={entries}
                             />
                         ))}
-                        <NewMeasurement
-                            dateFormatHandler={formatDateToDisplay}
-                        />
+                        <NewMeasurement dateFormatHandler={formatDateToDisplay} />
                     </tbody>
                 </table>
             </div>
-            <button
-                className="add-new-measurement"
-                type="submit"
-                onClick={handleAddRow}
-            >
-                Add
-            </button>
+            <button className="add-new-measurement-button" type="submit" onClick={handleAddRow}>Add</button>
+
         </Fragment>
     );
 };
