@@ -1,4 +1,5 @@
-﻿import MeasurementRow from "./MeasurementRow";
+﻿import { Fragment } from "react";
+import MeasurementRow from "./MeasurementRow";
 import { useDispatch, useSelector } from "react-redux";
 import {
     selectNewRow,
@@ -11,7 +12,7 @@ import NewMeasurement from "./NewMeasurement";
 import { formatDateToDisplay } from "../utils/dateUtil";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
-import "./MeasurementTable.css"
+import "./MeasurementTable.css";
 
 const MeasurementTable = () => {
     const dispatch = useDispatch();
@@ -63,31 +64,34 @@ const MeasurementTable = () => {
     };
 
     return (
-        <div>
-            <table className="measurement-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        {bodyParts.map((bodyPart, index) => (
-                            <th key={index}>{bodyPart}</th>
+        <Fragment>
+            <div className="measurement-table-container">
+                <table className="measurement-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            {bodyParts.map((bodyPart, index) => (
+                                <th key={index}>{bodyPart}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {dates.map((date, dateIndex) => (
+                            <MeasurementRow
+                                key={dateIndex}
+                                date={date}
+                                dateIndex={dateIndex}
+                                bodyParts={bodyParts}
+                                entries={entries}
+                            />
                         ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {dates.map((date, dateIndex) => (
-                        <MeasurementRow
-                            key={dateIndex}
-                            date={date}
-                            dateIndex={dateIndex}
-                            bodyParts={bodyParts}
-                            entries={entries}
-                        />
-                    ))}
-                    <NewMeasurement dateFormatHandler={formatDateToDisplay} />
-                </tbody>
-            </table>
-            <button onClick={handleAddRow}>Add</button>
-        </div>
+                        <NewMeasurement dateFormatHandler={formatDateToDisplay} />
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" onClick={handleAddRow}>Add</button>
+
+        </Fragment>
     );
 };
 

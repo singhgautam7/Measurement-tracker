@@ -6,7 +6,7 @@ import {
 } from "../store/measurementSlice";
 import { getFormattedTodayDate } from "../utils/dateUtil";
 import { DEFAULT_DATE_FORMAT } from "../constants/constants";
-import "./NewMeasurement.css"
+import "./NewMeasurement.css";
 
 const NewMeasurement = ({ dateFormatHandler }) => {
     const dispatch = useDispatch();
@@ -18,7 +18,12 @@ const NewMeasurement = ({ dateFormatHandler }) => {
     };
 
     const handleMeasurementChange = (event, index) => {
-        const value = event.target.value;
+        let value = event.target.value;
+        if (value < 1) {
+            value = 1;
+        } else if (value > 999) {
+            value = 999;
+        }
         dispatch(updateMeasurementValue({ index, value })); // Dispatch the updateMeasurementValue action
     };
 
@@ -36,9 +41,12 @@ const NewMeasurement = ({ dateFormatHandler }) => {
             {newRow.entries.map((entry, index) => (
                 <td key={index}>
                     <input
+                        className="new-measurement-number"
                         type="number"
                         value={entry}
                         onChange={(e) => handleMeasurementChange(e, index)}
+                        min="1"
+                        max="999"
                     />
                 </td>
             ))}

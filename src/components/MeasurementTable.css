@@ -1,9 +1,16 @@
-﻿.measurement-table {
-    width: 100%;
-    margin: 0 auto;
+﻿.measurement-table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px; /* Optional padding around the table */
+}
+
+.measurement-table {
+    max-width: 100%;
     border-collapse: collapse;
-    padding: 10px;
-    border: 1px solid #fff;
+    width: auto;
+    table-layout: fixed;
 }
 
 .measurement-table th {
@@ -11,7 +18,8 @@
 }
 
 .measurement-table td,
-.measurement-table th {
+.measurement-table th,
+.measurement-table input {
     text-align: center;
     padding: 8px;
     border: 1px solid #ccc;
