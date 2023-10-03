@@ -47,6 +47,7 @@ const NewMeasurement = ({ dateFormatHandler }) => {
                         onChange={(e) => handleMeasurementChange(e, index)}
                         min="1"
                         max="999"
+                        autoFocus={index === 0}
                     />
                 </td>
             ))}
