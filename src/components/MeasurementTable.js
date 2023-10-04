@@ -1,21 +1,18 @@
 ﻿import { Fragment } from "react";
 import MeasurementRow from "./MeasurementRow";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
     selectNewRow,
     selectDates,
     selectBodyParts,
-    selectEntries,
-    addNewRow,
+    selectEntries
 } from "../store/measurementSlice";
 import NewMeasurement from "./NewMeasurement";
 import { formatDateToDisplay } from "../utils/dateUtil";
-import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import "./MeasurementTable.css";
 
 const MeasurementTable = () => {
-    const dispatch = useDispatch();
     const newRow = useSelector(selectNewRow);
     const dates = useSelector(selectDates);
     const bodyParts = useSelector(selectBodyParts);
@@ -41,27 +38,6 @@ const MeasurementTable = () => {
         // TODO: Add a loading indicator;
         return <></>;
     }
-
-    const handleAddRow = () => {
-        // If all entries are string and are empty
-        if (
-            newRow.entries.every(
-                (entry) => typeof entry === "string" && entry.trim() === ""
-            )
-        ) {
-            toast.error("Atleast one value needs to be filled");
-            return;
-        }
-
-        // If date already exists in the dates list
-        if (dates.some((date) => date === newRow.date)) {
-            toast.error("Date already exists");
-            return;
-        }
-
-        const formattedDate = formatDateToDisplay(newRow.date);
-        dispatch(addNewRow(formattedDate));
-    };
 
     return (
         <Fragment>
@@ -93,13 +69,13 @@ const MeasurementTable = () => {
                     </tfoot>
                 </table>
             </div>
-            <button
+            {/* <button
                 className="add-new-measurement-button"
                 type="submit"
                 onClick={handleAddRow}
             >
                 Add
-            </button>
+            </button> */}
         </Fragment>
     );
 };
