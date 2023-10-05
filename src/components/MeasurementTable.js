@@ -3,9 +3,8 @@ import MeasurementRow from "./MeasurementRow";
 import { useSelector } from "react-redux";
 import {
     selectNewRow,
-    selectDates,
-    selectBodyParts,
-    selectEntries
+    selectColumns,
+    selectRows
 } from "../store/measurementSlice";
 import NewMeasurement from "./NewMeasurement";
 import { formatDateToDisplay } from "../utils/dateUtil";
@@ -14,24 +13,22 @@ import "./MeasurementTable.css";
 
 const MeasurementTable = () => {
     const newRow = useSelector(selectNewRow);
-    const dates = useSelector(selectDates);
-    const bodyParts = useSelector(selectBodyParts);
-    const entries = useSelector(selectEntries);
-
+    const columns = useSelector(selectColumns);
+    const rows = useSelector(selectRows);
     const [dataLoaded, setDataLoaded] = useState(false);
+    // const dates = rows.map((entry) => entry.Date);
 
     useEffect(() => {
         // Check if the necessary data is available
         if (
             newRow !== undefined &&
-            dates !== undefined &&
-            bodyParts !== undefined &&
-            entries !== undefined
+            columns !== undefined &&
+            rows !== undefined
         ) {
             // Data is loaded
             setDataLoaded(true);
         }
-    }, [newRow, dates, bodyParts, entries]);
+    }, [newRow, columns, rows]);
 
     if (!dataLoaded) {
         // Render loading indicator
@@ -45,20 +42,17 @@ const MeasurementTable = () => {
                 <table className="measurement-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            {bodyParts.map((bodyPart, index) => (
-                                <th key={index}>{bodyPart}</th>
+                            {columns.map((column, columnIndex) => (
+                                <th key={columnIndex}>{column}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {dates.map((date, dateIndex) => (
+                        {rows.map((row, rowIndex) => (
                             <MeasurementRow
-                                key={dateIndex}
-                                date={date}
-                                dateIndex={dateIndex}
-                                bodyParts={bodyParts}
-                                entries={entries}
+                                key={rowIndex}
+                                row={row}
+                                rowIndex={rowIndex}
                             />
                         ))}
                     </tbody>

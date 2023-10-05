@@ -10,6 +10,7 @@ function App() {
     <div className="App">
       <h2>Body Measurement Tracker</h2>
       <DataTable />
+      <MeasurementTable />
       <Toaster position="top-right"/>
     </div>
   );

@@ -3,26 +3,31 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
     selectNewRow,
-    selectDates,
-    selectBodyParts,
-    selectEntries,
+    selectColumns,
+    selectRows,
 } from "../store/measurementSlice";
 import { useEffect, useState } from "react";
-import { DataGrid, GridActionsCellItem, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
+import {
+    DataGrid,
+    GridActionsCellItem,
+    GridToolbarContainer,
+    GridToolbarExport,
+} from "@mui/x-data-grid";
 import "./DataTable.css";
 
 const DataTable = () => {
     const newRow = useSelector(selectNewRow);
-    const dates = useSelector(selectDates);
-    const bodyParts = useSelector(selectBodyParts);
-    const entries = useSelector(selectEntries);
-
+    const columns = useSelector(selectColumns);
+    const rows = useSelector(selectRows);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const dates = rows.map((entry) => entry.Date);
 
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
-                <GridToolbarExport printOptions={{ disableToolbarButton: true }} />
+                <GridToolbarExport
+                    printOptions={{ disableToolbarButton: true }}
+                />
             </GridToolbarContainer>
         );
     }
@@ -31,37 +36,25 @@ const DataTable = () => {
         // Check if the necessary data is available
         if (
             newRow !== undefined &&
-            dates !== undefined &&
-            bodyParts !== undefined &&
-            entries !== undefined
+            columns !== undefined &&
+            rows !== undefined
         ) {
             // Data is loaded
             setDataLoaded(true);
         }
-    }, [newRow, dates, bodyParts, entries]);
+    }, [newRow, columns, rows]);
 
-    const columns = [
-        {
-            field: "col1",
-            headerName: "Date",
-            // TODO: Add date type
-            // type: "date",
+    const gridColumns = [
+        ...columns.map((columnName, index) => ({
+            field: columnName,
+            headerName: columnName,
             headerClassName: "header-cell",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 150,
-        },
-        ...bodyParts.map((part, index) => ({
-            field: `col${index + 2}`,
-            type: "number",
-            headerName: part,
-            headerClassName: "header-cell",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100,
-            sortable: false,
+            type: columnName === "Date" ? "" : "number",
+            sortable: columnName === "Date" ? true : false,
         })),
         {
             field: "actions",
@@ -79,18 +72,13 @@ const DataTable = () => {
         },
     ];
 
-    const rows = dates.map((date, index) => {
-        const row = { id: index + 1, col1: date };
+    const gridRows = rows.map((item, index) => ({
+        ...item,
+        id: index + 1,
+    }));
 
-        for (let i = 0; i < entries[index].length; i++) {
-            row[`col${i + 2}`] = entries[index][i];
-        }
-
-        return row;
-    });
-
-    console.log("columns", columns)
-    console.log("rows", rows)
+    console.log("columns", columns);
+    console.log("rows", rows);
 
     if (!dataLoaded) {
         // Render loading indicator
@@ -101,15 +89,15 @@ const DataTable = () => {
     return (
         <div className="measurement-table-container">
             <DataGrid
-                rows={rows}
-                columns={columns}
+                rows={gridRows}
+                columns={gridColumns}
                 autoHeight
                 autoWidth
                 disableColumnMenu
                 disableRowSelectionOnClick
                 initialState={{
                     sorting: {
-                        sortModel: [{ field: "col1", sort: "asc" }],
+                        sortModel: [{ field: "Date", sort: "asc" }],
                     },
                 }}
                 slots={{ toolbar: CustomToolbar }}
