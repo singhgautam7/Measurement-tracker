@@ -7,7 +7,7 @@ import {
     selectRows
 } from "../store/measurementSlice";
 import NewMeasurement from "./NewMeasurement";
-import { formatDateToDisplay } from "../utils/dateUtil";
+import { convertStrToDateObj } from "../utils/dateUtil";
 import { useEffect, useState } from "react";
 import "./MeasurementTable.css";
 
@@ -58,7 +58,7 @@ const MeasurementTable = () => {
                     </tbody>
                     <tfoot>
                         <NewMeasurement
-                            dateFormatHandler={formatDateToDisplay}
+                            dateFormatHandler={convertStrToDateObj}
                         />
                     </tfoot>
                 </table>

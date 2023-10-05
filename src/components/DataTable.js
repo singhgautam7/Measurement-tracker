@@ -12,21 +12,29 @@ import {
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarExport,
+    GridToolbarColumnsButton,
 } from "@mui/x-data-grid";
 import "./DataTable.css";
+import { convertStrToDateObj, convertDateObjToStr } from "../utils/dateUtil";
 
 const DataTable = () => {
     const newRow = useSelector(selectNewRow);
     const columns = useSelector(selectColumns);
     const rows = useSelector(selectRows);
     const [dataLoaded, setDataLoaded] = useState(false);
-    const dates = rows.map((entry) => entry.Date);
+    // const dates = rows.map((entry) => entry.Date);
 
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
+                <GridToolbarColumnsButton />
                 <GridToolbarExport
                     printOptions={{ disableToolbarButton: true }}
+                    csvOptions={{
+                        fileName: "myMeasurements",
+                        delimiter: ";",
+                        utf8WithBom: true,
+                    }}
                 />
             </GridToolbarContainer>
         );
@@ -48,19 +56,25 @@ const DataTable = () => {
         ...columns.map((columnName, index) => ({
             field: columnName,
             headerName: columnName,
-            headerClassName: "header-cell",
+            headerClassName: "data-grid-header-cell",
+            cellClassName: "data-grid-cell",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 150,
-            type: columnName === "Date" ? "" : "number",
+            type: columnName === "Date" ? "date" : "number",
             sortable: columnName === "Date" ? true : false,
+            valueFormatter: (params) =>
+                columnName === "Date"
+                    ? convertDateObjToStr(params.value)
+                    : params.value,
         })),
         {
             field: "actions",
             type: "actions",
             headerName: "Actions",
-            headerClassName: "header-cell",
+            headerClassName: "data-grid-header-cell",
+            cellClassName: "data-grid-cell",
             headerAlign: "center",
             align: "center",
             flex: 0.7,
@@ -72,13 +86,11 @@ const DataTable = () => {
         },
     ];
 
-    const gridRows = rows.map((item, index) => ({
-        ...item,
-        id: index + 1,
-    }));
-
-    console.log("columns", columns);
-    console.log("rows", rows);
+    const gridRows = rows.map((item, index) => {
+        item.Date = convertStrToDateObj(item.Date);
+        item.id = index + 1;
+        return item;
+    });
 
     if (!dataLoaded) {
         // Render loading indicator
@@ -92,9 +104,10 @@ const DataTable = () => {
                 rows={gridRows}
                 columns={gridColumns}
                 autoHeight
-                autoWidth
+                // autoWidth
                 disableColumnMenu
                 disableRowSelectionOnClick
+                // hideFooter
                 initialState={{
                     sorting: {
                         sortModel: [{ field: "Date", sort: "asc" }],

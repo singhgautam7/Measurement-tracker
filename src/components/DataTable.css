@@ -2,11 +2,17 @@
     align-items: center;
     padding: 20px;
     overflow: auto;
-    max-width: 100%;
-    width: auto;
+    display: flex;
+    justify-content: start;
+    align-items: start;
 }
 
-.measurement-table-container .header-cell {
+.data-grid-cell {
+    border: 1px solid #ccc;
+}
+
+.data-grid-header-cell {
     background-color: #eee;
+    border: 1px solid #ccc;
     font-weight: bold;
 }

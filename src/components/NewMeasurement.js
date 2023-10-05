@@ -9,7 +9,7 @@ import {
 } from "../store/measurementSlice";
 import toast from "react-hot-toast";
 
-import { formatDateToDisplay, getFormattedTodayDate } from "../utils/dateUtil";
+import { convertStrToDateObj, getFormattedTodayDate } from "../utils/dateUtil";
 import { DEFAULT_DATE_FORMAT } from "../constants/constants";
 import "./NewMeasurement.css";
 import { useState } from "react";
@@ -29,7 +29,7 @@ const NewMeasurement = ({ dateFormatHandler }) => {
 
     const handleDateChange = (event) => {
         const date = event.target.value;
-        const formattedDate = formatDateToDisplay(date);
+        const formattedDate = convertStrToDateObj(date);
         dispatch(updateNewDate(formattedDate));
     };
 
