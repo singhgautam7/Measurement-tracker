@@ -1,1 +1,12 @@
-﻿
+﻿.measurement-table-container {
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+    max-width: 100%;
+    width: auto;
+}
+
+.measurement-table-container .header-cell {
+    background-color: #eee;
+    font-weight: bold;
+}

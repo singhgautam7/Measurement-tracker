@@ -1,5 +1,6 @@
-﻿import { Fragment } from "react";
 import { useSelector } from "react-redux";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
     selectNewRow,
     selectDates,
@@ -7,8 +8,8 @@ import {
     selectEntries,
 } from "../store/measurementSlice";
 import { useEffect, useState } from "react";
+import { DataGrid, GridActionsCellItem, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
 import "./DataTable.css";
-import { DataGrid } from "@mui/x-data-grid";
 
 const DataTable = () => {
     const newRow = useSelector(selectNewRow);
@@ -17,6 +18,14 @@ const DataTable = () => {
     const entries = useSelector(selectEntries);
 
     const [dataLoaded, setDataLoaded] = useState(false);
+
+    function CustomToolbar() {
+        return (
+            <GridToolbarContainer>
+                <GridToolbarExport printOptions={{ disableToolbarButton: true }} />
+            </GridToolbarContainer>
+        );
+    }
 
     useEffect(() => {
         // Check if the necessary data is available
@@ -32,11 +41,42 @@ const DataTable = () => {
     }, [newRow, dates, bodyParts, entries]);
 
     const columns = [
-        { field: "col1", headerName: "Date" },
+        {
+            field: "col1",
+            headerName: "Date",
+            // TODO: Add date type
+            // type: "date",
+            headerClassName: "header-cell",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 150,
+        },
         ...bodyParts.map((part, index) => ({
             field: `col${index + 2}`,
+            type: "number",
             headerName: part,
+            headerClassName: "header-cell",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            sortable: false,
         })),
+        {
+            field: "actions",
+            type: "actions",
+            headerName: "Actions",
+            headerClassName: "header-cell",
+            headerAlign: "center",
+            align: "center",
+            flex: 0.7,
+            minWidth: 50,
+            getActions: () => [
+                <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
+                <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
+            ],
+        },
     ];
 
     const rows = dates.map((date, index) => {
@@ -49,6 +89,9 @@ const DataTable = () => {
         return row;
     });
 
+    console.log("columns", columns)
+    console.log("rows", rows)
+
     if (!dataLoaded) {
         // Render loading indicator
         // TODO: Add a loading indicator;
@@ -56,8 +99,21 @@ const DataTable = () => {
     }
 
     return (
-        <div>
-            <DataGrid rows={rows} columns={columns} />
+        <div className="measurement-table-container">
+            <DataGrid
+                rows={rows}
+                columns={columns}
+                autoHeight
+                autoWidth
+                disableColumnMenu
+                disableRowSelectionOnClick
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: "col1", sort: "asc" }],
+                    },
+                }}
+                slots={{ toolbar: CustomToolbar }}
+            />
         </div>
     );
 };
