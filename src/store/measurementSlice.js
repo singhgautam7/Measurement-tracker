@@ -1,31 +1,36 @@
 ﻿import { createSlice } from "@reduxjs/toolkit";
-import { getMeasurementInitialState, getNewRowEmptyState } from "../utils/stateUtil";
+import { getMeasurementInitialState } from "../utils/stateUtil";
+import { convertDateObjToStr } from "../utils/dateUtil";
 
-console.log("getMeasurementInitialState() slice", getMeasurementInitialState())
+console.log("getMeasurementInitialState() slice", getMeasurementInitialState());
 
 const measurementSlice = createSlice({
     name: "measurementsData",
     initialState: getMeasurementInitialState(),
     reducers: {
-        updateNewDate: (state, action) => {
-            // Update the date in the newEntry
-            state.newRow.Date = action.payload;
-        },
-        updateNewRowInputValue: (state, action) => {
-            const { key, value } = action.payload
-            state.newRow[key] = Number(value)
-        },
-        addNewRow: (state, action) => {
-            state.rows.push(state.newRow)
+        addNewRowFromData: (state, action) => {
+            const rowToAdd = action.payload;
 
-            // Reset the new entry
-            state.newRow = getNewRowEmptyState(state.columns)
+            if (!(typeof rowToAdd.Date === "string")) {
+                rowToAdd.Date = convertDateObjToStr(rowToAdd.Date);
+            }
+            state.rows.push(rowToAdd);
+        },
+        removeRow: (state, action) => {
+            const idToRemove = action.payload;
+            console.log("removeRow, idToRemove", action.payload);
+            const updatedRows = state.rows.filter(
+                (row) => row.id !== idToRemove
+            );
+            return {
+                ...state,
+                rows: updatedRows,
+            };
         },
     },
 });
 
-export const { updateNewDate, updateNewRowInputValue, addNewRow } = measurementSlice.actions;
+export const { addNewRowFromData, removeRow } = measurementSlice.actions;
 export const selectColumns = (state) => state.measurements.columns;
 export const selectRows = (state) => state.measurements.rows;
-export const selectNewRow = (state) => state.measurements.newRow;
 export default measurementSlice.reducer;
