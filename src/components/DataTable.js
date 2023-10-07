@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
     selectColumns,
     selectRows,
-    addNewRowFromData,
+    addRow,
     removeRow,
+    editRow,
 } from "../store/measurementSlice";
 import { useState } from "react";
 import {
@@ -22,6 +22,7 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import "./DataTable.css";
 import { convertStrToDateObj, convertDateObjToStr } from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
@@ -39,7 +40,10 @@ function CustomToolbar(props) {
         setData((oldRows) => [...oldRows, { id: id, isNew: true, ...newRow }]);
         setDataModesModel((oldModel) => ({
             ...oldModel,
-            [id]: { mode: GridRowModes.Edit, fieldToFocus: "Date" },
+            [id]: {
+                mode: GridRowModes.Edit,
+                fieldToFocus: "Date",
+            },
         }));
     };
 
@@ -94,7 +98,9 @@ const DataTable = () => {
 
         // If date already exists in the dates list
         // this Row has date object but rows has date string stored
-        const isDateInData = rows.some((item) => item.Date === convertDateObjToStr(thisRow.Date));
+        const isDateInData = rows.some(
+            (item) => item.Date === convertDateObjToStr(thisRow.Date)
+        );
 
         if (isEmpty) {
             toast.error("Atleast one value needs to be filled");
@@ -107,12 +113,6 @@ const DataTable = () => {
         }
 
         return true;
-    };
-
-    const handleAddRowInState = (thisRow) => {
-        if (isRowValidated(thisRow)) {
-            dispatch(addNewRowFromData(thisRow));
-        }
     };
 
     const handleRowEditStop = (params, event) => {
@@ -165,14 +165,17 @@ const DataTable = () => {
         if (!isRowValidated(filteredRow)) {
             return;
         }
-        handleAddRowInState({ ...filteredRow, id: newRowData.id });
+
+        if (newRowData.isNew) {
+            dispatch(addRow({ ...filteredRow, id: newRowData.id }));
+        } else {
+            dispatch(editRow({ ...filteredRow, id: newRowData.id }));
+        }
 
         const updatedRow = { ...newRowData, isNew: false };
-        console.log("data before setting", data);
         setData(
             data.map((row) => (row.id === newRowData.id ? updatedRow : row))
         );
-        console.log("data after setting", data);
         console.log("updatedRow", updatedRow);
         return updatedRow;
     };
@@ -223,30 +226,20 @@ const DataTable = () => {
             align: "center",
             flex: 1,
             minWidth: 150,
-            editable: true,
             type: columnName === "Date" ? "date" : "number",
             sortable: columnName === "Date" ? true : false,
+            // editable: true,
+            // editable: columnName === "Date" ? false : true,
+            editable: (params) => {
+                if (columnName === Date) {
+                    return dataModesModel[params.id]?.mode === GridRowModes.Edit;
+                }
+                return true
+            },
             valueFormatter: (params) =>
                 columnName === "Date"
                     ? convertDateObjToStr(params.value)
                     : params.value,
-            // valueGetter: (params) => {
-            //     if (columnName === "Date") {
-            //         return params.value;
-            //     } else {
-            //         const num = Number(params.value);
-            //         const minVal = 1;
-            //         const maxVal = 999;
-
-            //         if (num < minVal) {
-            //             return String(minVal);
-            //         } else if (num > maxVal) {
-            //             return String(maxVal);
-            //         }
-
-            //         return String(num);
-            //     }
-            // },
         })),
         {
             field: "actions",

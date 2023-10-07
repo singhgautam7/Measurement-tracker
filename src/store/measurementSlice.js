@@ -8,7 +8,7 @@ const measurementSlice = createSlice({
     name: "measurementsData",
     initialState: getMeasurementInitialState(),
     reducers: {
-        addNewRowFromData: (state, action) => {
+        addRow: (state, action) => {
             const rowToAdd = action.payload;
 
             if (!(typeof rowToAdd.Date === "string")) {
@@ -18,7 +18,6 @@ const measurementSlice = createSlice({
         },
         removeRow: (state, action) => {
             const idToRemove = action.payload;
-            console.log("removeRow, idToRemove", action.payload);
             const updatedRows = state.rows.filter(
                 (row) => row.id !== idToRemove
             );
@@ -27,10 +26,23 @@ const measurementSlice = createSlice({
                 rows: updatedRows,
             };
         },
+        editRow: (state, action) => {
+            const updatedRow = action.payload;
+            const index = state.rows.findIndex(
+                (row) => row.id === updatedRow.id
+            );
+
+            if (index !== -1) {
+                state.rows[index] = {
+                    ...updatedRow,
+                    Date: convertDateObjToStr(updatedRow.Date),
+                };
+            }
+        },
     },
 });
 
-export const { addNewRowFromData, removeRow } = measurementSlice.actions;
+export const { addRow, removeRow, editRow } = measurementSlice.actions;
 export const selectColumns = (state) => state.measurements.columns;
 export const selectRows = (state) => state.measurements.rows;
 export default measurementSlice.reducer;
