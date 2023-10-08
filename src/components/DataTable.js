@@ -13,7 +13,6 @@ import {
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarExport,
-    GridToolbarColumnsButton,
     GridRowModes,
     GridRowEditStopReasons,
     GridEditInputCell,
@@ -24,17 +23,21 @@ import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import ColumnIcon from "@mui/icons-material/AppRegistration";
 import "./DataTable.css";
-import {
-    convertStrToDateObj,
-    convertDateObjToStr,
-    getFormattedTodayDate,
-} from "../utils/dateUtil";
+import { convertStrToDateObj, convertDateObjToStr } from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
+import ColumnsModal from "./ColumnsModal";
 
 function CustomToolbar(props) {
-    const { setData, setDataModesModel, columns } = props;
+    const {
+        setData,
+        setDataModesModel,
+        columns,
+        openColumnsModal,
+        setOpenColumnsModal,
+    } = props;
 
     const handleClick = () => {
         const id = getRandomString();
@@ -59,7 +62,13 @@ function CustomToolbar(props) {
             >
                 Add record
             </Button>
-            <GridToolbarColumnsButton />
+            <Button
+                color="primary"
+                startIcon={<ColumnIcon />}
+                onClick={() => setOpenColumnsModal(true)}
+            >
+                Columns
+            </Button>
             <GridToolbarExport
                 printOptions={{ disableToolbarButton: true }}
                 csvOptions={{
@@ -87,6 +96,7 @@ const DataTable = () => {
     // const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState(gridRows);
     const [dataModesModel, setDataModesModel] = useState({});
+    const [openColumnsModal, setOpenColumnsModal] = useState(false);
 
     const isRowValidated = (thisRow, oldDate = null) => {
         // If all entries are string and are empty
@@ -329,6 +339,15 @@ const DataTable = () => {
 
     return (
         <div className="measurement-table-container">
+            {openColumnsModal && (
+                <ColumnsModal
+                    columns={columns}
+                    open={openColumnsModal}
+                    onClose={() => setOpenColumnsModal(false)}
+                    // onDeleteColumn={handleDeleteColumn}
+                />
+            )}
+
             <DataGrid
                 apiRef={dataGridRef}
                 rows={data}
@@ -352,7 +371,13 @@ const DataTable = () => {
                 }}
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
-                    toolbar: { setData, setDataModesModel, columns },
+                    toolbar: {
+                        setData,
+                        setDataModesModel,
+                        columns,
+                        openColumnsModal,
+                        setOpenColumnsModal,
+                    },
                 }}
                 sx={{
                     boxShadow: 2,
