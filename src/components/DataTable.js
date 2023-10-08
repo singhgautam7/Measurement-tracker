@@ -35,8 +35,6 @@ function CustomToolbar(props) {
         const id = getRandomString();
         const newRow = getEmptyNewRowModal(columns);
 
-        console.log("new id", id);
-
         setData((oldRows) => [...oldRows, { id: id, isNew: true, ...newRow }]);
         setDataModesModel((oldModel) => ({
             ...oldModel,
@@ -75,7 +73,6 @@ const DataTable = () => {
     const columns = useSelector(selectColumns);
     const rows = useSelector(selectRows);
     const gridRows = rows.map((item, index) => {
-        // item.id = index + 1;
         return {
             ...item,
             Date: convertStrToDateObj(item.Date),
@@ -86,7 +83,7 @@ const DataTable = () => {
     const [data, setData] = useState(gridRows);
     const [dataModesModel, setDataModesModel] = useState({});
 
-    const isRowValidated = (thisRow) => {
+    const isRowValidated = (thisRow, oldDate = null) => {
         // If all entries are string and are empty
         const isEmpty = Object.keys(thisRow)
             .filter((key) => key !== "Date")
@@ -96,11 +93,17 @@ const DataTable = () => {
                     thisRow[key].trim() === ""
             );
 
+        let isDateInData = false;
         // If date already exists in the dates list
-        // this Row has date object but rows has date string stored
-        const isDateInData = rows.some(
-            (item) => item.Date === convertDateObjToStr(thisRow.Date)
-        );
+        if (oldDate != null && oldDate === thisRow.Date) {
+            isDateInData = false;
+        } else {
+            // this Row has date object but rows has date string stored
+            isDateInData = rows.some(
+                (item) => item.Date === convertDateObjToStr(thisRow.Date)
+            );
+            console.log("else", isDateInData);
+        }
 
         if (isEmpty) {
             toast.error("Atleast one value needs to be filled");
@@ -162,14 +165,23 @@ const DataTable = () => {
         const filteredRow = Object.fromEntries(
             Object.entries(newRowData).filter(([key]) => columns.includes(key))
         );
-        if (!isRowValidated(filteredRow)) {
-            return;
-        }
 
         if (newRowData.isNew) {
+            // If the row is being added
+            if (!isRowValidated(filteredRow)) {
+                return;
+            }
             dispatch(addRow({ ...filteredRow, id: newRowData.id }));
+            toast.success("New row added successfully");
         } else {
+            // If the row is being edited
+            const oldData = data.find((row) => row.id === newRowData.id);
+            const oldDate = oldData.Date
+            if (!isRowValidated(filteredRow, oldDate)) {
+                return;
+            }
             dispatch(editRow({ ...filteredRow, id: newRowData.id }));
+            toast.success("Row modified successfully");
         }
 
         const updatedRow = { ...newRowData, isNew: false };
@@ -229,13 +241,10 @@ const DataTable = () => {
             type: columnName === "Date" ? "date" : "number",
             sortable: columnName === "Date" ? true : false,
             // editable: true,
-            // editable: columnName === "Date" ? false : true,
-            editable: (params) => {
-                if (columnName === Date) {
-                    return dataModesModel[params.id]?.mode === GridRowModes.Edit;
-                }
-                return true
-            },
+            editable: (params) =>
+                columnName === "Date"
+                    ? dataModesModel[params.id]?.mode === GridRowModes.Edit
+                    : true,
             valueFormatter: (params) =>
                 columnName === "Date"
                     ? convertDateObjToStr(params.value)

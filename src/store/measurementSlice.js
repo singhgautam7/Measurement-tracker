@@ -32,10 +32,13 @@ const measurementSlice = createSlice({
                 (row) => row.id === updatedRow.id
             );
 
+            if (!(typeof updatedRow.Date === "string")) {
+                updatedRow.Date = convertDateObjToStr(updatedRow.Date);
+            }
+
             if (index !== -1) {
                 state.rows[index] = {
                     ...updatedRow,
-                    Date: convertDateObjToStr(updatedRow.Date),
                 };
             }
         },

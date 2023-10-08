@@ -1,19 +1,37 @@
 // App.js
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 // import MeasurementTable from './components/MeasurementTable';
-import { Toaster } from 'react-hot-toast';
-import DataTable from './components/DataTable';
+import { Toaster } from "react-hot-toast";
+import DataTable from "./components/DataTable";
 
 function App() {
-  return (
-    <div className="App">
-      <h2>Body Measurement Tracker</h2>
-      <DataTable />
-      {/* <MeasurementTable /> */}
-      <Toaster position="top-right"/>
-    </div>
-  );
+    return (
+        <div className="App">
+            <h2>Body Measurement Tracker</h2>
+            <DataTable />
+            {/* <MeasurementTable /> */}
+            <Toaster
+                position="top-center"
+                toastOptions={{
+                    success: {
+                        style: {
+                          border: "1px solid #713200",
+                          padding: "16px",
+                          background: "white"
+                        },
+                    },
+                    error: {
+                        style: {
+                            border: "1px solid #713200",
+                            padding: "16px",
+                            background: "white",
+                        },
+                    },
+                }}
+            />
+        </div>
+    );
 }
 
 export default App;

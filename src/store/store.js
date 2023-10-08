@@ -16,7 +16,6 @@ const store = configureStore({
 
 store.subscribe(() => {
   const state = store.getState();
-  console.log("subscriber state", state)
   saveStorageToLocalStorage(MEASUREMENTS_LOCAL_STORAGE_KEY, state);
 });
 
