@@ -16,6 +16,7 @@ import {
     GridToolbarColumnsButton,
     GridRowModes,
     GridRowEditStopReasons,
+    GridEditInputCell,
 } from "@mui/x-data-grid";
 import { useGridApiRef } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
@@ -24,7 +25,11 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import "./DataTable.css";
-import { convertStrToDateObj, convertDateObjToStr } from "../utils/dateUtil";
+import {
+    convertStrToDateObj,
+    convertDateObjToStr,
+    getFormattedTodayDate,
+} from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
 
@@ -176,7 +181,7 @@ const DataTable = () => {
         } else {
             // If the row is being edited
             const oldData = data.find((row) => row.id === newRowData.id);
-            const oldDate = oldData.Date
+            const oldDate = oldData.Date;
             if (!isRowValidated(filteredRow, oldDate)) {
                 return;
             }
@@ -229,27 +234,45 @@ const DataTable = () => {
     // }
 
     const gridColumns = [
-        ...columns.map((columnName, index) => ({
-            field: columnName,
-            headerName: columnName,
+        {
+            field: "Date",
+            headerName: "Date",
             headerClassName: "data-grid-header-cell",
             cellClassName: "data-grid-cell",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 150,
-            type: columnName === "Date" ? "date" : "number",
-            sortable: columnName === "Date" ? true : false,
-            // editable: true,
-            editable: (params) =>
-                columnName === "Date"
-                    ? dataModesModel[params.id]?.mode === GridRowModes.Edit
-                    : true,
-            valueFormatter: (params) =>
-                columnName === "Date"
-                    ? convertDateObjToStr(params.value)
-                    : params.value,
-        })),
+            type: "date",
+            sortable: true,
+            editable: true,
+            valueFormatter: (params) => convertDateObjToStr(params.value),
+        },
+        ...columns
+            .filter((columnName) => columnName !== "Date")
+            .map((columnName, index) => ({
+                field: columnName,
+                headerName: columnName,
+                headerClassName: "data-grid-header-cell",
+                cellClassName: "data-grid-cell",
+                headerAlign: "center",
+                align: "center",
+                flex: 1,
+                minWidth: 150,
+                type: "number",
+                sortable: false,
+                editable: true,
+                valueFormatter: (params) => params.value,
+                renderEditCell: (params) => (
+                    <GridEditInputCell
+                        {...params}
+                        inputProps={{
+                            max: 999,
+                            min: 1,
+                        }}
+                    />
+                ),
+            })),
         {
             field: "actions",
             type: "actions",
