@@ -238,7 +238,7 @@ const DataTable = () => {
             field: "Date",
             headerName: "Date",
             headerClassName: "data-grid-header-cell",
-            cellClassName: "data-grid-cell",
+            cellClassName: "data-grid-action-cell",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -246,6 +246,7 @@ const DataTable = () => {
             type: "date",
             sortable: true,
             editable: true,
+            renderHeader: (params) => <strong>{params.field}</strong>,
             valueFormatter: (params) => convertDateObjToStr(params.value),
         },
         ...columns
@@ -263,6 +264,7 @@ const DataTable = () => {
                 sortable: false,
                 editable: true,
                 valueFormatter: (params) => params.value,
+                renderHeader: (params) => <strong>{params.field}</strong>,
                 renderEditCell: (params) => (
                     <GridEditInputCell
                         {...params}
@@ -274,15 +276,16 @@ const DataTable = () => {
                 ),
             })),
         {
-            field: "actions",
+            field: "Actions",
             type: "actions",
             headerName: "Actions",
             headerClassName: "data-grid-header-cell",
             cellClassName: "data-grid-cell",
             headerAlign: "center",
             align: "center",
-            flex: 0.7,
+            flex: 0.5,
             minWidth: 50,
+            renderHeader: (params) => <strong>{params.field}</strong>,
             getActions: ({ id }) => {
                 const isInEditMode =
                     dataModesModel[id]?.mode === GridRowModes.Edit;
@@ -331,10 +334,8 @@ const DataTable = () => {
                 rows={data}
                 columns={gridColumns}
                 autoHeight
-                // autoWidth
                 disableColumnMenu
                 disableRowSelectionOnClick
-                // hideFooter
                 editMode="row"
                 rowModesModel={dataModesModel}
                 onRowModesModelChange={handleRowModesModelChange}
@@ -352,6 +353,14 @@ const DataTable = () => {
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
                     toolbar: { setData, setDataModesModel, columns },
+                }}
+                sx={{
+                    boxShadow: 2,
+                    border: 2,
+                    borderColor: "primary.light",
+                    "& .MuiDataGrid-cell:hover": {
+                        color: "primary.main",
+                    },
                 }}
             />
         </div>
