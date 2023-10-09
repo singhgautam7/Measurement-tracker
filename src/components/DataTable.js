@@ -35,7 +35,6 @@ function CustomToolbar(props) {
         setData,
         setDataModesModel,
         columns,
-        openColumnsModal,
         setOpenColumnsModal,
     } = props;
 
@@ -84,7 +83,8 @@ function CustomToolbar(props) {
 const DataTable = () => {
     const dispatch = useDispatch();
     const dataGridRef = useGridApiRef();
-    const columns = useSelector(selectColumns);
+    const columnsConfig = useSelector(selectColumns);
+    const columns = columnsConfig.map((column) => column.name);
     const rows = useSelector(selectRows);
     const gridRows = rows.map((item, index) => {
         return {
@@ -259,11 +259,14 @@ const DataTable = () => {
             renderHeader: (params) => <strong>{params.field}</strong>,
             valueFormatter: (params) => convertDateObjToStr(params.value),
         },
-        ...columns
-            .filter((columnName) => columnName !== "Date")
-            .map((columnName, index) => ({
-                field: columnName,
-                headerName: columnName,
+        ...columnsConfig
+            .filter((column) => column.name !== "Date")
+            .map((column, index) => ({
+                field: column.name,
+                headerName:
+                    column.unit === ""
+                        ? column.name
+                        : `${column.name} (${column.unit})`,
                 headerClassName: "data-grid-header-cell",
                 cellClassName: "data-grid-cell",
                 headerAlign: "center",
@@ -273,8 +276,7 @@ const DataTable = () => {
                 type: "number",
                 sortable: false,
                 editable: true,
-                valueFormatter: (params) => params.value,
-                renderHeader: (params) => <strong>{params.field}</strong>,
+                renderHeader: (params) => <strong>{params.colDef.headerName}</strong>,
                 renderEditCell: (params) => (
                     <GridEditInputCell
                         {...params}
@@ -341,7 +343,7 @@ const DataTable = () => {
         <div className="measurement-table-container">
             {openColumnsModal && (
                 <ColumnsModal
-                    columns={columns}
+                    columnsConfig={columnsConfig}
                     open={openColumnsModal}
                     onClose={() => setOpenColumnsModal(false)}
                     // onDeleteColumn={handleDeleteColumn}
@@ -375,7 +377,6 @@ const DataTable = () => {
                         setData,
                         setDataModesModel,
                         columns,
-                        openColumnsModal,
                         setOpenColumnsModal,
                     },
                 }}

@@ -12,7 +12,7 @@ import ModalDialog from "@mui/joy/ModalDialog";
 import DialogTitle from "@mui/joy/DialogTitle";
 import DialogContent from "@mui/joy/DialogContent";
 
-const ColumnsModal = ({ columns, open, onClose, onDeleteColumn }) => {
+const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     return (
         <Modal open={open} onClose={() => onClose()}>
             <ModalDialog variant="outlined">
@@ -35,7 +35,7 @@ const ColumnsModal = ({ columns, open, onClose, onDeleteColumn }) => {
                     >
                         <ListItemButton>Item 1</ListItemButton>
                     </ListItem> */}
-                    {columns.map((column, index) => (
+                    {columnsConfig.map((column, index) => (
                         <ListItem
                             key={index}
                             endAction={
@@ -48,7 +48,7 @@ const ColumnsModal = ({ columns, open, onClose, onDeleteColumn }) => {
                                 </IconButton>
                             }
                         >
-                            <ListItemButton>{column}</ListItemButton>
+                            <ListItemButton>{column.name}</ListItemButton>
                         </ListItem>
                     ))}
                 </List>
