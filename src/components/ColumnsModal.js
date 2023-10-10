@@ -4,8 +4,6 @@ import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
-import ListItemContent from "@mui/joy/ListItemContent";
-import Typography from "@mui/joy/Typography";
 import IconButton from "@mui/joy/IconButton";
 import Add from "@mui/icons-material/Add";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
@@ -19,7 +17,11 @@ import Input from "@mui/joy/Input";
 import { getRandomInt } from "../utils/generalUtil";
 
 const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
-    const [oldColumnsConfig, setOldColumnsConfig] = useState(columnsConfig);
+    const tempColumnsConfig = columnsConfig.map((column) => ({
+        ...column,
+        disabled: true,
+    }));
+    const [oldColumnsConfig, setOldColumnsConfig] = useState(tempColumnsConfig);
     const [newColumnsConfig, setNewColumnsConfig] = useState([]);
 
     const handleAddColumnClick = () => {
@@ -29,13 +31,13 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                 id: getRandomInt(1, 9999),
                 name: "",
                 unit: "",
+                disabled: false,
             },
         ];
         setNewColumnsConfig(updatedColumnConfig);
     };
 
     const handleRemoveColumnClick = (id, isNew) => {
-        console.log("Removing", id, isNew);
         if (isNew) {
             setNewColumnsConfig(
                 newColumnsConfig.filter((item) => item.id !== id)
@@ -47,8 +49,21 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
         }
     };
 
-    console.log("oldColumnsConfig", oldColumnsConfig);
-    console.log("newColumnsConfig", newColumnsConfig);
+    const handleListDoubleClick = (id, isNew) => {
+        console.log("Double clicked", id, isNew)
+        if (isNew) {
+            return
+        } else {
+            const indexToUpdate = oldColumnsConfig.findIndex(
+                (column) => column.id === id
+            );
+            if (indexToUpdate !== -1) {
+                oldColumnsConfig[indexToUpdate].disabled = false;
+                setOldColumnsConfig([...oldColumnsConfig]);
+                console.log("After double click", oldColumnsConfig)
+            }
+        }
+    };
 
     const columnInputJSX = (column, id, isNew = false) => {
         return (
@@ -57,12 +72,12 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                     defaultValue={column.name}
                     placeholder="Column"
                     color="primary"
-                    disabled={!isNew}
+                    disabled={column.disabled}
                     endDecorator={
                         <React.Fragment>
                             <Divider orientation="vertical" />
                             <Select
-                                disabled={!isNew}
+                                disabled={column.disabled}
                                 variant="plain"
                                 defaultValue={column.unit}
                                 // onChange={(_, value) =>
@@ -94,6 +109,7 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                     aria-label="Delete"
                     size="sm"
                     color="danger"
+                    disabled={column.disabled}
                     onClick={() => handleRemoveColumnClick(id, isNew)}
                 >
                     <DeleteOutline />
@@ -103,7 +119,14 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     };
 
     return (
-        <Modal open={open} onClose={() => onClose()}>
+        <Modal
+            open={open}
+            onClose={(_event, reason) => {
+                if (reason === "closeClick") {
+                    onClose();
+                }
+            }}
+        >
             <ModalDialog variant="outlined">
                 <ModalClose />
                 <DialogTitle>Modify Columns</DialogTitle>
@@ -119,12 +142,22 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                     }}
                 >
                     {oldColumnsConfig.map((column, index) => (
-                        <ListItem key={index}>
+                        <ListItem
+                            key={index}
+                            onDoubleClick={() =>
+                                handleListDoubleClick(column.id, false)
+                            }
+                        >
                             {columnInputJSX(column, column.id, false)}
                         </ListItem>
                     ))}
                     {newColumnsConfig.map((column, index) => (
-                        <ListItem key={index}>
+                        <ListItem
+                            key={index}
+                            onDoubleClick={() =>
+                                handleListDoubleClick(column.id, false)
+                            }
+                        >
                             {columnInputJSX(column, column.id, true)}
                         </ListItem>
                     ))}
