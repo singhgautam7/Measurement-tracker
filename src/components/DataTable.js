@@ -25,18 +25,13 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import ColumnIcon from "@mui/icons-material/AppRegistration";
 import "./DataTable.css";
-import { convertStrToDateObj, convertDateObjToStr } from "../utils/dateUtil";
+import { convertStrToDateObj, convertDateObjToStr, getFormattedTodayDate } from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
 import ColumnsModal from "./ColumnsModal";
 
 function CustomToolbar(props) {
-    const {
-        setData,
-        setDataModesModel,
-        columns,
-        setOpenColumnsModal,
-    } = props;
+    const { setData, setDataModesModel, columns, setOpenColumnsModal } = props;
 
     const handleClick = () => {
         const id = getRandomString();
@@ -117,7 +112,11 @@ const DataTable = () => {
             isDateInData = rows.some(
                 (item) => item.Date === convertDateObjToStr(thisRow.Date)
             );
-            console.log("else", isDateInData);
+        }
+
+        if (thisRow.Date > getFormattedTodayDate()) {
+            toast.error("Future dates are not allowed");
+            return false;
         }
 
         if (isEmpty) {
@@ -276,7 +275,9 @@ const DataTable = () => {
                 type: "number",
                 sortable: false,
                 editable: true,
-                renderHeader: (params) => <strong>{params.colDef.headerName}</strong>,
+                renderHeader: (params) => (
+                    <strong>{params.colDef.headerName}</strong>
+                ),
                 renderEditCell: (params) => (
                     <GridEditInputCell
                         {...params}
@@ -343,7 +344,9 @@ const DataTable = () => {
         <div className="measurement-table-container">
             {openColumnsModal && (
                 <ColumnsModal
-                    columnsConfig={columnsConfig}
+                    columnsConfig={columnsConfig.filter(
+                        (column) => column.name !== "Date"
+                    )}
                     open={openColumnsModal}
                     onClose={() => setOpenColumnsModal(false)}
                     // onDeleteColumn={handleDeleteColumn}
