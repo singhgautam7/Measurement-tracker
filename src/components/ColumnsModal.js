@@ -15,6 +15,7 @@ import DialogContent from "@mui/joy/DialogContent";
 import Divider from "@mui/joy/Divider";
 import Input from "@mui/joy/Input";
 import { getRandomInt } from "../utils/generalUtil";
+import ConfirmationModal from "./ConfirmationModal";
 
 const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     const tempColumnsConfig = columnsConfig.map((column) => ({
@@ -23,6 +24,34 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     }));
     const [oldColumnsConfig, setOldColumnsConfig] = useState(tempColumnsConfig);
     const [newColumnsConfig, setNewColumnsConfig] = useState([]);
+    const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [confirmationPromise, setConfirmationPromise] = useState(null);
+
+    const handleSaveConfirmationPromise = (confirm) => {
+        if (confirmationPromise) {
+            if (confirm) {
+                console.log("Resolving promise");
+                confirmationPromise.resolve();
+            } else {
+                console.log("Rejecting promise");
+                confirmationPromise.reject();
+            }
+            setConfirmationPromise(null);
+        }
+    };
+
+    const handleSaveClick = () => {
+        setOpenConfirmationModal(true);
+        const savePromise = new Promise((resolve, reject) => {
+            setConfirmationPromise({ resolve, reject });
+        });
+
+        savePromise.then(() => {
+            console.log("Handling success logic");
+          }).catch(() => {
+            console.log("Handling failure logic");
+          });
+    };
 
     const handleAddColumnClick = () => {
         const updatedColumnConfig = [
@@ -50,9 +79,9 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     };
 
     const handleListDoubleClick = (id, isNew) => {
-        console.log("Double clicked", id, isNew)
+        console.log("Double clicked", id, isNew);
         if (isNew) {
-            return
+            return;
         } else {
             const indexToUpdate = oldColumnsConfig.findIndex(
                 (column) => column.id === id
@@ -60,7 +89,7 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
             if (indexToUpdate !== -1) {
                 oldColumnsConfig[indexToUpdate].disabled = false;
                 setOldColumnsConfig([...oldColumnsConfig]);
-                console.log("After double click", oldColumnsConfig)
+                console.log("After double click", oldColumnsConfig);
             }
         }
     };
@@ -119,62 +148,76 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     };
 
     return (
-        <Modal
-            open={open}
-            onClose={(_event, reason) => {
-                if (reason === "closeClick") {
-                    onClose();
-                }
-            }}
-        >
-            <ModalDialog variant="outlined">
-                <ModalClose />
-                <DialogTitle>Modify Columns</DialogTitle>
-                <DialogContent>
-                    Double click any item to edit values
-                </DialogContent>
-                <List
-                    sx={{
-                        maxWidth: 400,
-                        overflow: "auto",
-                        mx: "calc(-1 * var(--ModalDialog-padding))",
-                        px: "var(--ModalDialog-padding)",
-                    }}
-                >
-                    {oldColumnsConfig.map((column, index) => (
-                        <ListItem
-                            key={index}
-                            onDoubleClick={() =>
-                                handleListDoubleClick(column.id, false)
-                            }
-                        >
-                            {columnInputJSX(column, column.id, false)}
-                        </ListItem>
-                    ))}
-                    {newColumnsConfig.map((column, index) => (
-                        <ListItem
-                            key={index}
-                            onDoubleClick={() =>
-                                handleListDoubleClick(column.id, false)
-                            }
-                        >
-                            {columnInputJSX(column, column.id, true)}
-                        </ListItem>
-                    ))}
-                </List>
-                <Button
-                    type="submit"
-                    variant="outlined"
-                    startDecorator={<Add />}
-                    onClick={handleAddColumnClick}
-                >
-                    Add Column
-                </Button>
-                <Button type="submit" variant="soft">
-                    Save
-                </Button>
-            </ModalDialog>
-        </Modal>
+        <React.Fragment>
+            {openConfirmationModal && (
+                <ConfirmationModal
+                    open={openConfirmationModal}
+                    onClose={() => setOpenConfirmationModal(false)}
+                    onCloseParent={() => onClose()}
+                    handleSaveConfirmationPromise={handleSaveConfirmationPromise}
+                />
+            )}
+            <Modal
+                open={open}
+                onClose={(_event, reason) => {
+                    if (reason === "closeClick") {
+                        onClose();
+                    }
+                }}
+            >
+                <ModalDialog variant="outlined">
+                    <ModalClose />
+                    <DialogTitle>Modify Columns</DialogTitle>
+                    <DialogContent>
+                        Double click any item to edit values
+                    </DialogContent>
+                    <List
+                        sx={{
+                            maxWidth: 400,
+                            overflow: "auto",
+                            mx: "calc(-1 * var(--ModalDialog-padding))",
+                            px: "var(--ModalDialog-padding)",
+                        }}
+                    >
+                        {oldColumnsConfig.map((column, index) => (
+                            <ListItem
+                                key={index}
+                                onDoubleClick={() =>
+                                    handleListDoubleClick(column.id, false)
+                                }
+                            >
+                                {columnInputJSX(column, column.id, false)}
+                            </ListItem>
+                        ))}
+                        {newColumnsConfig.map((column, index) => (
+                            <ListItem
+                                key={index}
+                                onDoubleClick={() =>
+                                    handleListDoubleClick(column.id, false)
+                                }
+                            >
+                                {columnInputJSX(column, column.id, true)}
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Button
+                        type="submit"
+                        variant="outlined"
+                        startDecorator={<Add />}
+                        onClick={handleAddColumnClick}
+                    >
+                        Add Column
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="soft"
+                        onClick={handleSaveClick}
+                    >
+                        Save
+                    </Button>
+                </ModalDialog>
+            </Modal>
+        </React.Fragment>
     );
 };
 
