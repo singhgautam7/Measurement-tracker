@@ -9,10 +9,9 @@ import ModalDialog from "@mui/joy/ModalDialog";
 // import DeleteForever from '@mui/icons-material/DeleteForever';
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 
-export default function ConfirmationModal({
+export default function ColumnsConfirmationModal({
     open,
     onClose,
-    onCloseParent,
     handleSaveConfirmationPromise,
 }) {
     const handleCancelClicked = () => {
@@ -23,7 +22,6 @@ export default function ConfirmationModal({
     const handleSaveClicked = () => {
         handleSaveConfirmationPromise(true);
         onClose();
-        onCloseParent();
     };
 
     return (

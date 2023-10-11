@@ -42,10 +42,24 @@ const measurementSlice = createSlice({
                 };
             }
         },
+        modifyColumns: (state, action) => {
+            const modifiedColumns = action.payload;
+            return {
+                ...state,
+                columns: modifiedColumns,
+            };
+        },
+        modifyRows: (state, action) => {
+            const modifiedRows = action.payload;
+            return {
+                ...state,
+                rows: modifiedRows,
+            };
+        },
     },
 });
 
-export const { addRow, removeRow, editRow } = measurementSlice.actions;
+export const { addRow, removeRow, editRow, modifyColumns, modifyRows } = measurementSlice.actions;
 export const selectColumns = (state) => state.measurements.columns;
 export const selectRows = (state) => state.measurements.rows;
 export default measurementSlice.reducer;

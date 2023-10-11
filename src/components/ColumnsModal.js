@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import Button from "@mui/joy/Button";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
@@ -15,19 +15,81 @@ import DialogContent from "@mui/joy/DialogContent";
 import Divider from "@mui/joy/Divider";
 import Input from "@mui/joy/Input";
 import { getRandomInt } from "../utils/generalUtil";
-import ConfirmationModal from "./ConfirmationModal";
+import ColumnsConfirmationModal from "./ColumnsConfirmationModal";
+import { modifyColumns, modifyRows } from "../store/measurementSlice";
+import { useDispatch } from "react-redux";
 
-const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
+const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
+    const dispatch = useDispatch();
     const tempColumnsConfig = columnsConfig.map((column) => ({
         ...column,
         disabled: true,
     }));
     const [oldColumnsConfig, setOldColumnsConfig] = useState(tempColumnsConfig);
     const [newColumnsConfig, setNewColumnsConfig] = useState([]);
+    const [allColumns, setAllColumns] = useState([]);
     const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [saveButtonLoading, setSaveButtonLoading] = useState(false);
     const [confirmationPromise, setConfirmationPromise] = useState(null);
 
+    useEffect(() => {
+        const combined = [...oldColumnsConfig, ...newColumnsConfig].map(
+            ({ id, name, unit }) => ({ id, name, unit })
+        );
+        setAllColumns(combined);
+    }, [oldColumnsConfig, newColumnsConfig]);
+
+    const modifyStoreOnSave = () => {
+        // const newItems = allColumns.filter(({ id }) => !columnsConfig.some(column => column.id === id));
+        const removedItems = columnsConfig.filter(
+            ({ id }) => !allColumns.some((column) => column.id === id)
+        );
+        // const updatedUnits = allColumns.filter(({ id }) => {
+        //     const combinedColumn = allColumns.find(column => column.id === id);
+        //     const columnsConfigColumn = columnsConfig.find(column => column.id === id);
+
+        //     return combinedColumn.unit !== columnsConfigColumn.unit;
+        // });
+        const newColumnNames = newColumnsConfig.map((column) => column.name);
+        const removedColumnNames = removedItems.map((column) => column.name);
+
+        // // Add new columns in rows
+        // modifiedRows.forEach((row) => {
+        //     newColumnNames.forEach((newName) => {
+        //         row[newName] = "";
+        //     });
+        // });
+
+        // // Remove columns from rows
+        // modifiedRows.forEach((row) => {
+        //     removedColumnNames.forEach((oldName) => {
+        //         delete row[oldName];
+        //     });
+        // });
+
+        // Create a copy of the rows array to avoid direct mutations
+        const updatedRows = rows.map((row) => {
+            const updatedRow = { ...row };
+
+            // Add new columns to the row
+            newColumnNames.forEach((newName) => {
+                updatedRow[newName] = "";
+            });
+
+            // Remove columns from the row
+            removedColumnNames.forEach((oldName) => {
+                delete updatedRow[oldName];
+            });
+
+            return updatedRow;
+        });
+
+        dispatch(modifyColumns(allColumns));
+        dispatch(modifyRows(updatedRows));
+    };
+
     const handleSaveConfirmationPromise = (confirm) => {
+        console.log("handleSaveConfirmationPromise", confirm);
         if (confirmationPromise) {
             if (confirm) {
                 console.log("Resolving promise");
@@ -46,11 +108,19 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
             setConfirmationPromise({ resolve, reject });
         });
 
-        savePromise.then(() => {
-            console.log("Handling success logic");
-          }).catch(() => {
-            console.log("Handling failure logic");
-          });
+        savePromise
+            .then(() => {
+                console.log("Handling success logic");
+                setSaveButtonLoading(true);
+                // Todo - add a check if nothing is changed
+                // Todo - Add column input field validations
+                modifyStoreOnSave();
+                setSaveButtonLoading(false);
+                onClose();
+            })
+            .catch((error) => {
+                console.error("Handling failure logic", error);
+            });
     };
 
     const handleAddColumnClick = () => {
@@ -67,15 +137,9 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     };
 
     const handleRemoveColumnClick = (id, isNew) => {
-        if (isNew) {
-            setNewColumnsConfig(
-                newColumnsConfig.filter((item) => item.id !== id)
-            );
-        } else {
-            setOldColumnsConfig(
-                oldColumnsConfig.filter((item) => item.id !== id)
-            );
-        }
+        const funcToCall = isNew ? setNewColumnsConfig : setOldColumnsConfig;
+        const stateToUse = isNew ? newColumnsConfig : oldColumnsConfig;
+        funcToCall(stateToUse.filter((item) => item.id !== id));
     };
 
     const handleListDoubleClick = (id, isNew) => {
@@ -94,6 +158,30 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
         }
     };
 
+    const handleInputValChange = (value, id, isNew) => {
+        const funcToCall = isNew ? setNewColumnsConfig : setOldColumnsConfig;
+        funcToCall((prevColumns) => {
+            return prevColumns.map((column) => {
+                if (column.id === id) {
+                    return { ...column, name: value };
+                }
+                return column;
+            });
+        });
+    };
+
+    const handleUnitChange = (value, id, isNew) => {
+        const funcToCall = isNew ? setNewColumnsConfig : setOldColumnsConfig;
+        funcToCall((prevColumns) => {
+            return prevColumns.map((column) => {
+                if (column.id === id) {
+                    return { ...column, unit: value };
+                }
+                return column;
+            });
+        });
+    };
+
     const columnInputJSX = (column, id, isNew = false) => {
         return (
             <>
@@ -102,6 +190,9 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                     placeholder="Column"
                     color="primary"
                     disabled={column.disabled}
+                    onChange={(e) =>
+                        handleInputValChange(e.target.value, column.id, isNew)
+                    }
                     endDecorator={
                         <React.Fragment>
                             <Divider orientation="vertical" />
@@ -109,9 +200,9 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                                 disabled={column.disabled}
                                 variant="plain"
                                 defaultValue={column.unit}
-                                // onChange={(_, value) =>
-                                //     setCurrency(value)
-                                // }
+                                onChange={(_, value) =>
+                                    handleUnitChange(value, column.id, isNew)
+                                }
                                 slotProps={{
                                     listbox: {
                                         variant: "outlined",
@@ -150,11 +241,12 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
     return (
         <React.Fragment>
             {openConfirmationModal && (
-                <ConfirmationModal
+                <ColumnsConfirmationModal
                     open={openConfirmationModal}
                     onClose={() => setOpenConfirmationModal(false)}
-                    onCloseParent={() => onClose()}
-                    handleSaveConfirmationPromise={handleSaveConfirmationPromise}
+                    handleSaveConfirmationPromise={
+                        handleSaveConfirmationPromise
+                    }
                 />
             )}
             <Modal
@@ -210,6 +302,7 @@ const ColumnsModal = ({ columnsConfig, open, onClose, onDeleteColumn }) => {
                     </Button>
                     <Button
                         type="submit"
+                        loading={saveButtonLoading}
                         variant="soft"
                         onClick={handleSaveClick}
                     >

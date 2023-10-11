@@ -347,9 +347,9 @@ const DataTable = () => {
                     columnsConfig={columnsConfig.filter(
                         (column) => column.name !== "Date"
                     )}
+                    rows={rows}
                     open={openColumnsModal}
                     onClose={() => setOpenColumnsModal(false)}
-                    // onDeleteColumn={handleDeleteColumn}
                 />
             )}
 
