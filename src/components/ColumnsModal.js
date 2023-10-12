@@ -53,21 +53,6 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
         const newColumnNames = newColumnsConfig.map((column) => column.name);
         const removedColumnNames = removedItems.map((column) => column.name);
 
-        // // Add new columns in rows
-        // modifiedRows.forEach((row) => {
-        //     newColumnNames.forEach((newName) => {
-        //         row[newName] = "";
-        //     });
-        // });
-
-        // // Remove columns from rows
-        // modifiedRows.forEach((row) => {
-        //     removedColumnNames.forEach((oldName) => {
-        //         delete row[oldName];
-        //     });
-        // });
-
-        // Create a copy of the rows array to avoid direct mutations
         const updatedRows = rows.map((row) => {
             const updatedRow = { ...row };
 
@@ -271,16 +256,18 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                             px: "var(--ModalDialog-padding)",
                         }}
                     >
-                        {oldColumnsConfig.map((column, index) => (
-                            <ListItem
-                                key={index}
-                                onDoubleClick={() =>
-                                    handleListDoubleClick(column.id, false)
-                                }
-                            >
-                                {columnInputJSX(column, column.id, false)}
-                            </ListItem>
-                        ))}
+                        {oldColumnsConfig
+                            .filter((column) => column.name !== "Date")
+                            .map((column, index) => (
+                                <ListItem
+                                    key={index}
+                                    onDoubleClick={() =>
+                                        handleListDoubleClick(column.id, false)
+                                    }
+                                >
+                                    {columnInputJSX(column, column.id, false)}
+                                </ListItem>
+                            ))}
                         {newColumnsConfig.map((column, index) => (
                             <ListItem
                                 key={index}

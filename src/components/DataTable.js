@@ -36,6 +36,7 @@ function CustomToolbar(props) {
     const handleClick = () => {
         const id = getRandomString();
         const newRow = getEmptyNewRowModal(columns);
+        console.log("Adding new empty row", newRow)
 
         setData((oldRows) => [...oldRows, { id: id, isNew: true, ...newRow }]);
         setDataModesModel((oldModel) => ({
@@ -270,8 +271,8 @@ const DataTable = () => {
                 cellClassName: "data-grid-cell",
                 headerAlign: "center",
                 align: "center",
-                flex: 1,
-                minWidth: 150,
+                flex: 0.7,
+                minWidth: 100,
                 type: "number",
                 sortable: false,
                 editable: true,
@@ -296,8 +297,6 @@ const DataTable = () => {
             cellClassName: "data-grid-cell",
             headerAlign: "center",
             align: "center",
-            flex: 0.5,
-            minWidth: 50,
             renderHeader: (params) => <strong>{params.field}</strong>,
             getActions: ({ id }) => {
                 const isInEditMode =
@@ -344,9 +343,10 @@ const DataTable = () => {
         <div className="measurement-table-container">
             {openColumnsModal && (
                 <ColumnsModal
-                    columnsConfig={columnsConfig.filter(
-                        (column) => column.name !== "Date"
-                    )}
+                    // columnsConfig={columnsConfig.filter(
+                    //     (column) => column.name !== "Date"
+                    // )}
+                    columnsConfig={columnsConfig}
                     rows={rows}
                     open={openColumnsModal}
                     onClose={() => setOpenColumnsModal(false)}
