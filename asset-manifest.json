@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Measurement-tracker/static/css/main.34ed86d4.css",
+    "main.js": "/Measurement-tracker/static/js/main.1dbb8174.js",
+    "index.html": "/Measurement-tracker/index.html",
+    "main.34ed86d4.css.map": "/Measurement-tracker/static/css/main.34ed86d4.css.map",
+    "main.1dbb8174.js.map": "/Measurement-tracker/static/js/main.1dbb8174.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.34ed86d4.css",
+    "static/js/main.1dbb8174.js"
+  ]
+}
