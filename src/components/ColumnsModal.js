@@ -44,11 +44,11 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
         const removedItems = columnsConfig.filter(
             ({ id }) => !allColumns.some((column) => column.id === id)
         );
-        // const updatedUnits = allColumns.filter(({ id }) => {
-        //     const combinedColumn = allColumns.find(column => column.id === id);
+        // const updatedItems = allColumns.filter(({ id }) => {
+        //     const allColumn = allColumns.find(column => column.id === id);
         //     const columnsConfigColumn = columnsConfig.find(column => column.id === id);
 
-        //     return combinedColumn.unit !== columnsConfigColumn.unit;
+        //     return allColumn.unit !== columnsConfigColumn.unit || allColumn.name !== columnsConfigColumn.name;
         // });
         const newColumnNames = newColumnsConfig.map((column) => column.name);
         const removedColumnNames = removedItems.map((column) => column.name);

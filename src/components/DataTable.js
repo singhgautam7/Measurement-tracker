@@ -24,19 +24,31 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import ColumnIcon from "@mui/icons-material/AppRegistration";
+import ChartIcon from "@mui/icons-material/Timeline";
 import "./DataTable.css";
-import { convertStrToDateObj, convertDateObjToStr, getFormattedTodayDate } from "../utils/dateUtil";
+import {
+    convertStrToDateObj,
+    convertDateObjToStr,
+    getFormattedTodayDate,
+} from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
 import ColumnsModal from "./ColumnsModal";
+import GraphModal from "./GraphModal";
 
 function CustomToolbar(props) {
-    const { setData, setDataModesModel, columns, setOpenColumnsModal } = props;
+    const {
+        setData,
+        setDataModesModel,
+        columns,
+        setOpenColumnsModal,
+        setOpenGraphModal,
+    } = props;
 
     const handleClick = () => {
         const id = getRandomString();
         const newRow = getEmptyNewRowModal(columns);
-        console.log("Adding new empty row", newRow)
+        console.log("Adding new empty row", newRow);
 
         setData((oldRows) => [...oldRows, { id: id, isNew: true, ...newRow }]);
         setDataModesModel((oldModel) => ({
@@ -63,6 +75,13 @@ function CustomToolbar(props) {
                 onClick={() => setOpenColumnsModal(true)}
             >
                 Columns
+            </Button>
+            <Button
+                color="primary"
+                startIcon={<ChartIcon />}
+                onClick={() => setOpenGraphModal(true)}
+            >
+                Charts
             </Button>
             <GridToolbarExport
                 printOptions={{ disableToolbarButton: true }}
@@ -93,6 +112,7 @@ const DataTable = () => {
     const [data, setData] = useState(gridRows);
     const [dataModesModel, setDataModesModel] = useState({});
     const [openColumnsModal, setOpenColumnsModal] = useState(false);
+    const [openGraphModal, setOpenGraphModal] = useState(false);
 
     const isRowValidated = (thisRow, oldDate = null) => {
         // If all entries are string and are empty
@@ -271,7 +291,7 @@ const DataTable = () => {
                 cellClassName: "data-grid-cell",
                 headerAlign: "center",
                 align: "center",
-                flex: 0.7,
+                flex: 0.85,
                 minWidth: 100,
                 type: "number",
                 sortable: false,
@@ -343,13 +363,19 @@ const DataTable = () => {
         <div className="measurement-table-container">
             {openColumnsModal && (
                 <ColumnsModal
-                    // columnsConfig={columnsConfig.filter(
-                    //     (column) => column.name !== "Date"
-                    // )}
                     columnsConfig={columnsConfig}
                     rows={rows}
                     open={openColumnsModal}
                     onClose={() => setOpenColumnsModal(false)}
+                />
+            )}
+
+            {openGraphModal && (
+                <GraphModal
+                    columnsConfig={columnsConfig}
+                    rows={rows}
+                    open={openGraphModal}
+                    onClose={() => setOpenGraphModal(false)}
                 />
             )}
 
@@ -381,15 +407,17 @@ const DataTable = () => {
                         setDataModesModel,
                         columns,
                         setOpenColumnsModal,
+                        setOpenGraphModal,
                     },
                 }}
                 sx={{
                     boxShadow: 2,
-                    border: 2,
+                    border: 1,
                     borderColor: "primary.light",
                     "& .MuiDataGrid-cell:hover": {
                         color: "primary.main",
                     },
+                    padding: 1,
                 }}
             />
         </div>
