@@ -1,6 +1,6 @@
 # About
 - A measurement tracker web application.
-- [Link]("https://singhgautam7.github.io/Measurement-tracker") to the live version.
+- [Link](https://singhgautam7.github.io/Measurement-tracker) to the live version.
 
 # Features
 - Track your body measurement data.
