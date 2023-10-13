@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Measurements Tracker",
+  "name": "A Body Measurements Tracker by GRS",
   "icons": [
     {
       "src": "favicon.ico",
