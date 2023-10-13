@@ -1,8 +1,16 @@
-# About 
+# About
 - A measurement tracker web application.
 
-# Technical features
-- Uses redux toolkit to data accross various componenets
+# Features
+- Track your body measurement data.
+- Ability to modify the number of columns(i.e. teh number of type of measurements) in every way possible.
+- Ability to export data in csv format.
+- Ability to view the progress in form of a Line Chart.
+
+# Technical concepts used
+- Redux toolkit
+- Local Storage
+- JS Promises
 
 <!---
 # Getting Started with Create React App
