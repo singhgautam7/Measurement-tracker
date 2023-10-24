@@ -18,6 +18,8 @@ import { getRandomInt } from "../utils/generalUtil";
 import ColumnsConfirmationModal from "./ColumnsConfirmationModal";
 import { modifyColumns, modifyRows } from "../store/measurementSlice";
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import isEqual from 'lodash/isEqual';
 
 const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
     const dispatch = useDispatch();
@@ -88,6 +90,11 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
     };
 
     const handleSaveClick = () => {
+        // If no data is changed, throw error
+        if (isEqual(columnsConfig, allColumns)) {
+            toast.error("Please make any changes first")
+            return
+        }
         setOpenConfirmationModal(true);
         const savePromise = new Promise((resolve, reject) => {
             setConfirmationPromise({ resolve, reject });
@@ -271,9 +278,6 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                         {newColumnsConfig.map((column, index) => (
                             <ListItem
                                 key={index}
-                                onDoubleClick={() =>
-                                    handleListDoubleClick(column.id, false)
-                                }
                             >
                                 {columnInputJSX(column, column.id, true)}
                             </ListItem>
