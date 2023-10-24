@@ -19,13 +19,14 @@ import ColumnsConfirmationModal from "./ColumnsConfirmationModal";
 import { modifyColumns, modifyRows } from "../store/measurementSlice";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
-import isEqual from 'lodash/isEqual';
+import isEqual from "lodash/isEqual";
 
 const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
     const dispatch = useDispatch();
     const tempColumnsConfig = columnsConfig.map((column) => ({
         ...column,
         disabled: true,
+        error: false,
     }));
     const [oldColumnsConfig, setOldColumnsConfig] = useState(tempColumnsConfig);
     const [newColumnsConfig, setNewColumnsConfig] = useState([]);
@@ -41,6 +42,21 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
         setAllColumns(combined);
     }, [oldColumnsConfig, newColumnsConfig]);
 
+    function hasDuplicateNames(arr) {
+        const seen = {};
+
+        for (const item of arr) {
+            const name = item.name;
+
+            if (seen[name]) {
+                return true; // Found a duplicate
+            } else {
+                seen[name] = true;
+            }
+        }
+
+        return false; // No duplicates found
+    }
     const modifyStoreOnSave = () => {
         // const newItems = allColumns.filter(({ id }) => !columnsConfig.some(column => column.id === id));
         const removedItems = columnsConfig.filter(
@@ -89,12 +105,45 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
         }
     };
 
+    const highlightEmptyColumns = () => {
+        const updatedOldColumnsConfig = oldColumnsConfig.map((column) => {
+            if (column.name === "") {
+                return { ...column, error: true };
+            }
+            return column;
+        });
+        const updatedNewColumnsConfig = newColumnsConfig.map((column) => {
+            if (column.name === "") {
+                return { ...column, error: true };
+            }
+            return column;
+        });
+
+        setOldColumnsConfig(updatedOldColumnsConfig);
+        setNewColumnsConfig(updatedNewColumnsConfig);
+    };
+
     const handleSaveClick = () => {
         // If no data is changed, throw error
         if (isEqual(columnsConfig, allColumns)) {
-            toast.error("Please make any changes first")
-            return
+            toast.error("Please make any changes first");
+            return;
         }
+
+        highlightEmptyColumns();
+
+        // If name is empty, throw error
+        if (allColumns.some((column) => column.name === "")) {
+            toast.error("The column name cannot be empty");
+            return;
+        }
+
+        // If there are duplicate names
+        if (hasDuplicateNames(allColumns)) {
+            toast.error("Cannot have two columns with same name");
+            return;
+        }
+
         setOpenConfirmationModal(true);
         const savePromise = new Promise((resolve, reject) => {
             setConfirmationPromise({ resolve, reject });
@@ -123,6 +172,7 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                 name: "",
                 unit: "",
                 disabled: false,
+                error: false,
             },
         ];
         setNewColumnsConfig(updatedColumnConfig);
@@ -155,7 +205,7 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
         funcToCall((prevColumns) => {
             return prevColumns.map((column) => {
                 if (column.id === id) {
-                    return { ...column, name: value };
+                    return { ...column, name: value, error: false };
                 }
                 return column;
             });
@@ -180,8 +230,9 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                 <Input
                     defaultValue={column.name}
                     placeholder="Column"
-                    color="primary"
+                    color={column.error ? "danger" : "primary"}
                     disabled={column.disabled}
+                    error={column.error}
                     onChange={(e) =>
                         handleInputValChange(e.target.value, column.id, isNew)
                     }
@@ -276,9 +327,7 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                                 </ListItem>
                             ))}
                         {newColumnsConfig.map((column, index) => (
-                            <ListItem
-                                key={index}
-                            >
+                            <ListItem key={index}>
                                 {columnInputJSX(column, column.id, true)}
                             </ListItem>
                         ))}
