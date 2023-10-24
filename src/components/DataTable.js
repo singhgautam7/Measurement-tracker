@@ -35,6 +35,7 @@ import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
 import ColumnsModal from "./ColumnsModal";
 import GraphModal from "./GraphModal";
+import DeleteRowConfirmation from "./DeleteRowConfirmation";
 
 function CustomToolbar(props) {
     const {
@@ -113,6 +114,8 @@ const DataTable = () => {
     const [dataModesModel, setDataModesModel] = useState({});
     const [openColumnsModal, setOpenColumnsModal] = useState(false);
     const [openGraphModal, setOpenGraphModal] = useState(false);
+    const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [confirmationPromise, setConfirmationPromise] = useState(null);
 
     const isRowValidated = (thisRow, oldDate = null) => {
         // If all entries are string and are empty
@@ -178,8 +181,22 @@ const DataTable = () => {
 
     const handleDeleteClick = (id) => () => {
         console.log("handleDeleteClick invoked", id);
-        dispatch(removeRow(id));
-        setData(data.filter((row) => row.id !== id));
+
+        setOpenConfirmationModal(true);
+        const deletePromise = new Promise((resolve, reject) => {
+            setConfirmationPromise({ resolve, reject });
+        });
+
+        deletePromise
+            .then(() => {
+                console.log("Handling success logic");
+                dispatch(removeRow(id));
+                setData(data.filter((row) => row.id !== id));
+                setOpenConfirmationModal(false);
+            })
+            .catch((error) => {
+                console.error("Handling failure logic", error);
+            });
     };
 
     const handleCancelClick = (id) => () => {
@@ -236,32 +253,19 @@ const DataTable = () => {
         setDataModesModel(newRowModesModel);
     };
 
-    // const handleCellChange = (params) => {
-    //     const { id, field, value } = params;
-    //     console.log("cell change data", params)
-    //     // const updatedData = data.map((row) =>
-    //     //     row.id === id ? { ...row, [field]: value } : row
-    //     // );
-    //     // setData(updatedData);
-    // };
-
-    // useEffect(() => {
-    //     // Check if the necessary data is available
-    //     if (
-    //         newRow !== undefined &&
-    //         columns !== undefined &&
-    //         rows !== undefined
-    //     ) {
-    //         // Data is loaded
-    //         setDataLoaded(true);
-    //     }
-    // }, [newRow, columns, rows]);
-
-    // if (!dataLoaded) {
-    //     // Render loading indicator
-    //     // TODO: Add a loading indicator;
-    //     return <></>;
-    // }
+    const handleDeleteConfirmationPromise = (confirm) => {
+        console.log("handleDeleteConfirmationPromise", confirm);
+        if (confirmationPromise) {
+            if (confirm) {
+                console.log("Resolving delete promise");
+                confirmationPromise.resolve();
+            } else {
+                console.log("Rejecting delete promise");
+                confirmationPromise.reject();
+            }
+            setConfirmationPromise(null);
+        }
+    };
 
     const gridColumns = [
         {
@@ -353,6 +357,9 @@ const DataTable = () => {
                         label="Delete"
                         onClick={handleDeleteClick(id)}
                         color="inherit"
+                        // sx={{
+                        //     color: "red",
+                        // }}
                     />,
                 ];
             },
@@ -376,6 +383,16 @@ const DataTable = () => {
                     rows={rows}
                     open={openGraphModal}
                     onClose={() => setOpenGraphModal(false)}
+                />
+            )}
+
+            {openConfirmationModal && (
+                <DeleteRowConfirmation
+                    open={openConfirmationModal}
+                    onClose={() => setOpenConfirmationModal(false)}
+                    handleDeleteConfirmationPromise={
+                        handleDeleteConfirmationPromise
+                    }
                 />
             )}
 
