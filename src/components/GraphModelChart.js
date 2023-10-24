@@ -1,9 +1,18 @@
 ﻿import React from "react";
+import List from "@mui/joy/List";
 import { LineChart } from "@mui/x-charts/LineChart";
 
 export default function GraphModalChart({ xAxisData, seriesData, labelName }) {
     return (
         <React.Fragment>
+            <List
+                        sx={{
+                            maxWidth: 500,
+                            overflow: "auto",
+                            mx: "calc(-1 * var(--ModalDialog-padding))",
+                            px: "var(--ModalDialog-padding)",
+                        }}
+                    >
             <LineChart
                 xAxis={[
                     {
@@ -23,6 +32,7 @@ export default function GraphModalChart({ xAxisData, seriesData, labelName }) {
                 width={500}
                 height={300}
             />
+            </List>
         </React.Fragment>
     );
 }
