@@ -343,7 +343,7 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
                     <Button
                         type="submit"
                         loading={saveButtonLoading}
-                        variant="soft"
+                        variant="solid"
                         onClick={handleSaveClick}
                     >
                         Save
