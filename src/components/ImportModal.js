@@ -34,7 +34,7 @@ export default function ImportModal({ open, onClose }) {
                 <ModalDialog variant="outlined">
                     <ModalClose />
                     <DialogTitle>Import Data</DialogTitle>
-                    <DialogContent></DialogContent>
+                    <DialogContent>Note: All the existing data will be lost after successful import.</DialogContent>
                     <Button
                         component="label"
                         role={undefined}
