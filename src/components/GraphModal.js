@@ -59,7 +59,7 @@ export default function GraphModal({ columnsConfig, rows, open, onClose }) {
                             </Option>
                         ))}
                     </Select>
-                    {rowsForChart.length > 0 ? (
+                    {rowsForChart.length > 1 ? (
                         <GraphModalChart
                             xAxisData={rowsForChart.map((row) => row.Date)}
                             seriesData={rowsForChart.map(

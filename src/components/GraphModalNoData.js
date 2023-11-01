@@ -10,7 +10,7 @@ export default function GraphModalNoData() {
                 Yosemite National Park
             </Typography> */}
             <Typography>
-                No Data Available to show for the selected colum.
+                No Data Available to show for the selected colum. Please add more data.
             </Typography>
         </Card>
     );
