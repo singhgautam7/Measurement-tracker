@@ -5,7 +5,7 @@
 # Features
 - Track your body measurement data.
 - Ability to modify the number of columns(i.e. teh number of type of measurements) in every way possible.
-- Ability to export data in csv format.
+- Ability to export data in .xlsx format.
 - Ability to view the progress in form of a Line Chart.
 
 # Technical concepts used
