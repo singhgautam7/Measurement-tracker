@@ -12,13 +12,9 @@ import {
     DataGrid,
     GridActionsCellItem,
     GridToolbarContainer,
-    GridToolbarExport,
     GridRowModes,
     GridRowEditStopReasons,
     GridEditInputCell,
-    gridFilteredSortedRowIdsSelector,
-    gridVisibleColumnFieldsSelector,
-    useGridApiContext,
 } from "@mui/x-data-grid";
 import { useGridApiRef } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
@@ -42,16 +38,17 @@ import * as XLSX from "xlsx";
 import ColumnsModal from "./ColumnsModal";
 import GraphModal from "./GraphModal";
 import DeleteRowConfirmation from "./DeleteRowConfirmation";
+import ImportModal from "./ImportModal";
 
 function CustomToolbar(props) {
     const {
-        setData,
-        setDataModesModel,
         columns,
         rows,
+        setData,
+        setDataModesModel,
         setOpenColumnsModal,
         setOpenGraphModal,
-        dataGridApiRef,
+        setOpenImportModal,
     } = props;
 
     const handleClick = () => {
@@ -86,9 +83,7 @@ function CustomToolbar(props) {
     };
 
     const handleImportClick = () => {
-        toast("Coming Soon!", {
-            icon: "👏",
-        });
+        setOpenImportModal(true);
     };
 
     return (
@@ -128,14 +123,6 @@ function CustomToolbar(props) {
             >
                 Import
             </Button>
-            {/* <GridToolbarExport
-                printOptions={{ disableToolbarButton: true }}
-                csvOptions={{
-                    fileName: "myMeasurements",
-                    delimiter: ";",
-                    utf8WithBom: true,
-                }}
-            /> */}
         </GridToolbarContainer>
     );
 }
@@ -153,12 +140,12 @@ const DataTable = () => {
         };
     });
 
-    // const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState(gridRows);
     const [dataModesModel, setDataModesModel] = useState({});
     const [openColumnsModal, setOpenColumnsModal] = useState(false);
     const [openGraphModal, setOpenGraphModal] = useState(false);
     const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [openImportModal, setOpenImportModal] = useState(false);
     const [confirmationPromise, setConfirmationPromise] = useState(null);
 
     const isRowValidated = (thisRow, oldDate = null) => {
@@ -440,6 +427,13 @@ const DataTable = () => {
                 />
             )}
 
+            {openImportModal && (
+                <ImportModal
+                    open={openImportModal}
+                    onClose={() => setOpenImportModal(false)}
+                />
+            )}
+
             <DataGrid
                 apiRef={dataGridApiRef}
                 rows={data}
@@ -464,13 +458,13 @@ const DataTable = () => {
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
                     toolbar: {
-                        setData,
-                        setDataModesModel,
                         columns,
                         rows,
+                        setData,
+                        setDataModesModel,
                         setOpenColumnsModal,
                         setOpenGraphModal,
-                        dataGridApiRef,
+                        setOpenImportModal,
                     },
                 }}
                 sx={{
