@@ -16,6 +16,9 @@ import {
     GridRowModes,
     GridRowEditStopReasons,
     GridEditInputCell,
+    gridFilteredSortedRowIdsSelector,
+    gridVisibleColumnFieldsSelector,
+    useGridApiContext,
 } from "@mui/x-data-grid";
 import { useGridApiRef } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
@@ -25,6 +28,8 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import ColumnIcon from "@mui/icons-material/AppRegistration";
 import ChartIcon from "@mui/icons-material/Timeline";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import "./DataTable.css";
 import {
     convertStrToDateObj,
@@ -33,6 +38,7 @@ import {
 } from "../utils/dateUtil";
 import { getEmptyNewRowModal, getRandomString } from "../utils/generalUtil";
 import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
 import ColumnsModal from "./ColumnsModal";
 import GraphModal from "./GraphModal";
 import DeleteRowConfirmation from "./DeleteRowConfirmation";
@@ -42,8 +48,10 @@ function CustomToolbar(props) {
         setData,
         setDataModesModel,
         columns,
+        rows,
         setOpenColumnsModal,
         setOpenGraphModal,
+        dataGridApiRef,
     } = props;
 
     const handleClick = () => {
@@ -59,6 +67,28 @@ function CustomToolbar(props) {
                 fieldToFocus: "Date",
             },
         }));
+    };
+
+    const handleExportClick = () => {
+        const rowsWithoutId = rows.map((row) => {
+            const { id, ...rest } = row; // Use object destructuring to exclude "id"
+            return rest;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(rowsWithoutId);
+        XLSX.utils.sheet_add_aoa(worksheet, [columns.map((c) => c.name)], {
+            origin: "A1",
+        });
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet 1");
+        XLSX.writeFile(workbook, "measurementData.xlsx", { compression: true });
+    };
+
+    const handleImportClick = () => {
+        toast("Coming Soon!", {
+            icon: "👏",
+        });
     };
 
     return (
@@ -84,21 +114,35 @@ function CustomToolbar(props) {
             >
                 Charts
             </Button>
-            <GridToolbarExport
+            <Button
+                color="primary"
+                startIcon={<FileDownloadIcon />}
+                onClick={() => handleExportClick(true)}
+            >
+                Export
+            </Button>
+            <Button
+                color="primary"
+                startIcon={<FileUploadIcon />}
+                onClick={() => handleImportClick(true)}
+            >
+                Import
+            </Button>
+            {/* <GridToolbarExport
                 printOptions={{ disableToolbarButton: true }}
                 csvOptions={{
                     fileName: "myMeasurements",
                     delimiter: ";",
                     utf8WithBom: true,
                 }}
-            />
+            /> */}
         </GridToolbarContainer>
     );
 }
 
 const DataTable = () => {
     const dispatch = useDispatch();
-    const dataGridRef = useGridApiRef();
+    const dataGridApiRef = useGridApiRef();
     const columnsConfig = useSelector(selectColumns);
     const columns = columnsConfig.map((column) => column.name);
     const rows = useSelector(selectRows);
@@ -397,7 +441,7 @@ const DataTable = () => {
             )}
 
             <DataGrid
-                apiRef={dataGridRef}
+                apiRef={dataGridApiRef}
                 rows={data}
                 columns={gridColumns}
                 autoHeight
@@ -423,8 +467,10 @@ const DataTable = () => {
                         setData,
                         setDataModesModel,
                         columns,
+                        rows,
                         setOpenColumnsModal,
                         setOpenGraphModal,
+                        dataGridApiRef,
                     },
                 }}
                 sx={{
