@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Measurement-tracker/static/css/main.fb71ae9c.css",
-    "main.js": "/Measurement-tracker/static/js/main.5e217e1c.js",
+    "main.js": "/Measurement-tracker/static/js/main.a9c01928.js",
     "index.html": "/Measurement-tracker/index.html",
     "main.fb71ae9c.css.map": "/Measurement-tracker/static/css/main.fb71ae9c.css.map",
-    "main.5e217e1c.js.map": "/Measurement-tracker/static/js/main.5e217e1c.js.map"
+    "main.a9c01928.js.map": "/Measurement-tracker/static/js/main.a9c01928.js.map"
   },
   "entrypoints": [
     "static/css/main.fb71ae9c.css",
-    "static/js/main.5e217e1c.js"
+    "static/js/main.a9c01928.js"
   ]
 }
