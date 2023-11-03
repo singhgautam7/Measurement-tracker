@@ -6,7 +6,6 @@ import DialogTitle from "@mui/joy/DialogTitle";
 import DialogContent from "@mui/joy/DialogContent";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
-import { LineChart } from "@mui/x-charts/LineChart";
 import { convertStrToDateObj } from "../utils/dateUtil";
 import GraphModalChart from "./GraphModelChart";
 import GraphModalNoData from "./GraphModalNoData";
