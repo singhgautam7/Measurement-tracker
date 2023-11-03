@@ -5,6 +5,7 @@ import ModalDialog from "@mui/joy/ModalDialog";
 import DialogTitle from "@mui/joy/DialogTitle";
 import DialogContent from "@mui/joy/DialogContent";
 import Button from "@mui/joy/Button";
+import Input from "@mui/joy/Input";
 import SvgIcon from "@mui/joy/SvgIcon";
 import { styled } from "@mui/joy";
 import toast from "react-hot-toast";
@@ -21,12 +22,32 @@ const VisuallyHiddenInput = styled("input")`
     width: 1px;
 `;
 export default function ImportModal({ open, onClose }) {
+    const [selectedFileName, setSelectedFileName] = useState("");
+    const [fileSelectStatus, setFileSelectStatus] = useState("neutral");
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        const fileName = file.name;
+        const fileExtension = fileName.split(".").pop();
+        console.log("fileExtension", fileExtension)
+        setSelectedFileName(fileName);
+        if (fileExtension === "xlsx"){
+            setFileSelectStatus("success");
+        } else {
+            setFileSelectStatus("danger");
+            toast.error((t) => (
+                <span>
+                  Only files with <b>.xlsx</b> extensions are allowed
+                </span>
+              ));
+        }
+    };
 
     const handleImportClick = () => {
         toast("Coming Soon!", {
             icon: "👏",
         });
-    }
+    };
 
     return (
         <React.Fragment>
@@ -34,13 +55,16 @@ export default function ImportModal({ open, onClose }) {
                 <ModalDialog variant="outlined">
                     <ModalClose />
                     <DialogTitle>Import Data</DialogTitle>
-                    <DialogContent>Note: All the existing data will be lost after successful import.</DialogContent>
+                    <DialogContent>
+                        Note: All the existing data will be lost after
+                        successful import.
+                    </DialogContent>
                     <Button
                         component="label"
                         role={undefined}
                         tabIndex={-1}
                         variant="outlined"
-                        color="neutral"
+                        color={fileSelectStatus}
                         startDecorator={
                             <SvgIcon>
                                 <svg
@@ -59,9 +83,15 @@ export default function ImportModal({ open, onClose }) {
                             </SvgIcon>
                         }
                     >
-                        Upload a file
-                        <VisuallyHiddenInput type="file" />
+                        {selectedFileName !== ""
+                            ? selectedFileName
+                            : "Upload a file"}
+                        <VisuallyHiddenInput
+                            type="file"
+                            onChange={handleFileChange}
+                        />
                     </Button>
+                    {/* <p>Selected File: {selectedFileName}</p>{" "} */}
                     <Button
                         type="submit"
                         variant="solid"
