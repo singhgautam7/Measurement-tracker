@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useRef, useState } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import ModalDialog from "@mui/joy/ModalDialog";
@@ -8,6 +8,8 @@ import Button from "@mui/joy/Button";
 import SvgIcon from "@mui/joy/SvgIcon";
 import { styled } from "@mui/joy";
 import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
+import { getConvertedRowAndColumnData, runAllValidations } from "../utils/dataHelper";
 
 const VisuallyHiddenInput = styled("input")`
     clip: rect(0 0 0 0);
@@ -20,25 +22,26 @@ const VisuallyHiddenInput = styled("input")`
     white-space: nowrap;
     width: 1px;
 `;
+
 export default function ImportModal({ open, onClose }) {
     const [selectedFileName, setSelectedFileName] = useState("");
     const [fileSelectStatus, setFileSelectStatus] = useState("neutral");
+    const fileInputRef = useRef(null);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         const fileName = file.name;
         const fileExtension = fileName.split(".").pop();
-        console.log("fileExtension", fileExtension)
         setSelectedFileName(fileName);
-        if (fileExtension === "xlsx"){
+        if (fileExtension === "xlsx") {
             setFileSelectStatus("success");
         } else {
             setFileSelectStatus("danger");
             toast.error((t) => (
                 <span>
-                  Only files with <b>.xlsx</b> extensions are allowed
+                    Only files with <b>.xlsx</b> extensions are allowed
                 </span>
-              ));
+            ));
         }
     };
 
@@ -46,6 +49,31 @@ export default function ImportModal({ open, onClose }) {
         toast("Coming Soon!", {
             icon: "👏",
         });
+        const file = fileInputRef.current.files[0];
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+
+            const workbook = XLSX.read(data, { type: "array" });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+                defval: "",
+            });
+            const [convertedRows, convertedColumns] = getConvertedRowAndColumnData(jsonData);
+            const {isValid, errorMessage} = runAllValidations(jsonData[0], convertedRows)
+            if (isValid) {
+                toast.error(errorMessage)
+                return
+            }
+
+            console.log("jsonData", jsonData);
+            console.log("columns", convertedColumns);
+            console.log("rows", convertedRows);
+        };
+
+        reader.readAsArrayBuffer(file);
     };
 
     return (
@@ -86,14 +114,15 @@ export default function ImportModal({ open, onClose }) {
                             ? selectedFileName
                             : "Upload a file"}
                         <VisuallyHiddenInput
+                            ref={fileInputRef}
                             type="file"
                             onChange={handleFileChange}
                         />
                     </Button>
-                    {/* <p>Selected File: {selectedFileName}</p>{" "} */}
                     <Button
                         type="submit"
                         variant="solid"
+                        disabled={fileSelectStatus !== "success" ? true : false}
                         onClick={handleImportClick}
                     >
                         Import
