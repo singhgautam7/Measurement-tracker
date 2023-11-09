@@ -8,6 +8,7 @@ import Button from "@mui/joy/Button";
 import SvgIcon from "@mui/joy/SvgIcon";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
+import Typography from "@mui/joy/Typography";
 import { styled } from "@mui/joy";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -140,8 +141,45 @@ export default function ImportModal({ open, onClose }) {
                     <ModalClose />
                     <DialogTitle>Import Data</DialogTitle>
                     <DialogContent>
-                        Note: All the existing data will be lost after
-                        successful import.
+                        <Typography level="body-md">
+                            1. All the existing data will be lost after a
+                            successful import.
+                        </Typography>
+                        <Typography level="body-md">
+                            2. Examples of accepted dates are -{" "}
+                            <Typography
+                                level="body-md"
+                                color="success"
+                                variant="outlined"
+                                fontFamily="monospace"
+                                sx={{ opacity: "80%" }}
+                            >
+                                Nov 9, 2023
+                            </Typography>
+                            ,{" "}
+                            <Typography
+                                level="body-md"
+                                color="success"
+                                variant="outlined"
+                                fontFamily="monospace"
+                                sx={{ opacity: "80%" }}
+                            >
+                                2023-11-09
+                            </Typography>
+                            ,{" "}
+                            <Typography
+                                level="body-md"
+                                color="success"
+                                variant="outlined"
+                                fontFamily="monospace"
+                                sx={{ opacity: "80%" }}
+                            >
+                                2023/11/09
+                            </Typography>.
+                        </Typography>
+                        <Typography level="body-md">
+                            3. Apart from dates, all the other values should be numeric.
+                        </Typography>
                     </DialogContent>
                     <List
                         sx={{
