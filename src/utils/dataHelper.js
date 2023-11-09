@@ -10,8 +10,8 @@ function isNumeric(value) {
     return numericRegex.test(value);
 }
 
-let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
-
+let findDuplicates = (arr) =>
+    arr.filter((item, index) => arr.indexOf(item) !== index);
 
 /**
  * This will convert the data obtained from file buffer and convert it into
@@ -43,7 +43,7 @@ export function getConvertedRowAndColumnData(rawData) {
  * @param  {Array} headers transformed row data
  */
 function validateHeader(headers) {
-    const duplicates = findDuplicates(headers)
+    const duplicates = findDuplicates(headers);
 
     // Check if Date property is present
     if (!headers.includes("Date")) {
@@ -100,16 +100,9 @@ function validateRows(data) {
 }
 
 export function runAllValidations(headers, convertedRows) {
-    let {isValid, errorMessage} = validateHeader(headers);
-    if (!isValid) {
-        return {
-            isValid: isValid,
-            errorMessage: errorMessage,
-        };
+    let result = validateHeader(headers);
+    if (!result.isValid) {
+        return result;
     }
-    let {isValid1, errorMessage1} = validateRows(convertedRows);
-    return {
-        isValid: isValid1,
-        errorMessage: errorMessage1,
-    };
+    return validateRows(convertedRows);
 }

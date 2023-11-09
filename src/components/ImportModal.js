@@ -9,7 +9,10 @@ import SvgIcon from "@mui/joy/SvgIcon";
 import { styled } from "@mui/joy";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { getConvertedRowAndColumnData, runAllValidations } from "../utils/dataHelper";
+import {
+    getConvertedRowAndColumnData,
+    runAllValidations,
+} from "../utils/dataHelper";
 
 const VisuallyHiddenInput = styled("input")`
     clip: rect(0 0 0 0);
@@ -54,18 +57,19 @@ export default function ImportModal({ open, onClose }) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = e.target.result;
-
             const workbook = XLSX.read(data, { type: "array" });
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, {
                 header: 1,
                 defval: "",
             });
-            const [convertedRows, convertedColumns] = getConvertedRowAndColumnData(jsonData);
-            const {isValid, errorMessage} = runAllValidations(jsonData[0], convertedRows)
-            if (isValid) {
-                toast.error(errorMessage)
-                return
+            const [convertedRows, convertedColumns] =
+                getConvertedRowAndColumnData(jsonData);
+            const result = runAllValidations(jsonData[0], convertedRows);
+            console.log("error", result);
+            if (!result.isValid) {
+                toast.error(result.errorMessage);
+                return;
             }
 
             console.log("jsonData", jsonData);

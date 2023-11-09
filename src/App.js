@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
-import { Toaster } from "react-hot-toast";
+import { toast, Toaster, ToastBar } from "react-hot-toast";
+import Button from "@mui/joy/Button";
 import DataTable from "./components/DataTable";
 import Header from "./components/Header";
 
@@ -15,9 +16,9 @@ function App() {
                 toastOptions={{
                     success: {
                         style: {
-                          border: "1px solid #713200",
-                          padding: "16px",
-                          background: "white"
+                            border: "1px solid #713200",
+                            padding: "16px",
+                            background: "white",
                         },
                     },
                     error: {
@@ -28,7 +29,23 @@ function App() {
                         },
                     },
                 }}
-            />
+            >
+                {(t) => (
+                    <ToastBar toast={t}>
+                        {({ icon, message }) => (
+                            <>
+                                {icon}
+                                {message}
+                                {t.type !== "loading" && (
+                                    <button onClick={() => toast.dismiss(t.id)} style={{cursor: "pointer"}}>
+                                        x
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </ToastBar>
+                )}
+            </Toaster>
         </div>
     );
 }
