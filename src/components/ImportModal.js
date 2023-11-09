@@ -6,6 +6,8 @@ import DialogTitle from "@mui/joy/DialogTitle";
 import DialogContent from "@mui/joy/DialogContent";
 import Button from "@mui/joy/Button";
 import SvgIcon from "@mui/joy/SvgIcon";
+import List from "@mui/joy/List";
+import ListItem from "@mui/joy/ListItem";
 import { styled } from "@mui/joy";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -13,6 +15,9 @@ import {
     getConvertedRowAndColumnData,
     runAllValidations,
 } from "../utils/dataHelper";
+import ImportConfirmationModal from "./ImportConfirmationModal";
+import { useDispatch } from "react-redux";
+import { modifyColumns, modifyRows } from "../store/measurementSlice";
 
 const VisuallyHiddenInput = styled("input")`
     clip: rect(0 0 0 0);
@@ -27,9 +32,22 @@ const VisuallyHiddenInput = styled("input")`
 `;
 
 export default function ImportModal({ open, onClose }) {
+    const dispatch = useDispatch();
+    const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [confirmationPromise, setConfirmationPromise] = useState(null);
+    const [saveButtonLoading, setSaveButtonLoading] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState("");
     const [fileSelectStatus, setFileSelectStatus] = useState("neutral");
     const fileInputRef = useRef(null);
+
+    const modifyStoreOnSave = (convertedColumns, convertedRows) => {
+        setSaveButtonLoading(true);
+        // Todo - add a check if nothing is changed
+        // Todo - Add column input field validations
+        dispatch(modifyColumns(convertedColumns));
+        dispatch(modifyRows(convertedRows));
+        setSaveButtonLoading(false);
+    };
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -49,9 +67,6 @@ export default function ImportModal({ open, onClose }) {
     };
 
     const handleImportClick = () => {
-        toast("Coming Soon!", {
-            icon: "👏",
-        });
         const file = fileInputRef.current.files[0];
 
         const reader = new FileReader();
@@ -62,26 +77,64 @@ export default function ImportModal({ open, onClose }) {
             const jsonData = XLSX.utils.sheet_to_json(worksheet, {
                 header: 1,
                 defval: "",
+                raw: false,
             });
-            const [convertedRows, convertedColumns] =
-                getConvertedRowAndColumnData(jsonData);
-            const result = runAllValidations(jsonData[0], convertedRows);
-            console.log("error", result);
-            if (!result.isValid) {
-                toast.error(result.errorMessage);
+            try {
+                const [convertedRows, convertedColumns] =
+                    getConvertedRowAndColumnData(jsonData);
+                runAllValidations(jsonData[0], convertedRows);
+
+                console.log("jsonData", jsonData);
+                console.log("columns", convertedColumns);
+                console.log("rows", convertedRows);
+
+                setOpenConfirmationModal(true);
+                const savePromise = new Promise((resolve, reject) => {
+                    setConfirmationPromise({ resolve, reject });
+                });
+
+                savePromise
+                    .then(() => {
+                        console.log("Handling success logic");
+                        modifyStoreOnSave(convertedColumns, convertedRows);
+                        onClose();
+                    })
+                    .catch((error) => {
+                        console.error("Handling failure logic", error);
+                    });
+            } catch (error) {
+                toast.error(error.message);
                 return;
             }
-
-            console.log("jsonData", jsonData);
-            console.log("columns", convertedColumns);
-            console.log("rows", convertedRows);
         };
 
         reader.readAsArrayBuffer(file);
     };
 
+    const handleImportConfirmationPromise = (confirm) => {
+        if (confirmationPromise) {
+            if (confirm) {
+                console.log("Resolving promise");
+                confirmationPromise.resolve();
+            } else {
+                console.log("Rejecting promise");
+                confirmationPromise.reject();
+            }
+            setConfirmationPromise(null);
+        }
+    };
+
     return (
         <React.Fragment>
+            {openConfirmationModal && (
+                <ImportConfirmationModal
+                    open={openConfirmationModal}
+                    onClose={() => setOpenConfirmationModal(false)}
+                    handleImportConfirmationPromise={
+                        handleImportConfirmationPromise
+                    }
+                />
+            )}
             <Modal open={open} onClose={onClose}>
                 <ModalDialog variant="outlined">
                     <ModalClose />
@@ -90,6 +143,36 @@ export default function ImportModal({ open, onClose }) {
                         Note: All the existing data will be lost after
                         successful import.
                     </DialogContent>
+                    <List
+                        sx={{
+                            maxWidth: 400,
+                            overflow: "auto",
+                            mx: "calc(-1 * var(--ModalDialog-padding))",
+                            px: "var(--ModalDialog-padding)",
+                        }}
+                    >
+                        {/* <List>
+                            <ListItem>The Shawshank Redemption</ListItem>
+                            <ListItem nested>
+                                <ListItem>Star Wars</ListItem>
+                                <List marker="circle">
+                                    <ListItem>
+                                        Episode I – The Phantom Menace
+                                    </ListItem>
+                                    <ListItem>
+                                        Episode II – Attack of the Clones
+                                    </ListItem>
+                                    <ListItem>
+                                        Episode III – Revenge of the Sith
+                                    </ListItem>
+                                </List>
+                            </ListItem>
+                            <ListItem>
+                                The Lord of the Rings: The Two Towers
+                            </ListItem>
+                        </List> */}
+                    </List>
+
                     <Button
                         component="label"
                         role={undefined}
@@ -126,6 +209,7 @@ export default function ImportModal({ open, onClose }) {
                     <Button
                         type="submit"
                         variant="solid"
+                        loading={saveButtonLoading}
                         disabled={fileSelectStatus !== "success" ? true : false}
                         onClick={handleImportClick}
                     >

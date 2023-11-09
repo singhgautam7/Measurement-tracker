@@ -92,7 +92,6 @@ const ColumnsModal = ({ columnsConfig, rows, open, onClose }) => {
     };
 
     const handleSaveConfirmationPromise = (confirm) => {
-        console.log("handleSaveConfirmationPromise", confirm);
         if (confirmationPromise) {
             if (confirm) {
                 console.log("Resolving promise");

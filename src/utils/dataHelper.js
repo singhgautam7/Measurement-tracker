@@ -1,4 +1,5 @@
-﻿import { getRandomInt, getRandomString } from "./generalUtil";
+﻿import { convertDateObjToStr } from "./dateUtil";
+import { getRandomInt, getRandomString } from "./generalUtil";
 
 function isValidDate(dateString) {
     const parsedDate = new Date(dateString);
@@ -30,7 +31,16 @@ export function getConvertedRowAndColumnData(rawData) {
     const convertedRows = dataWithoutHeader.map((row) => {
         const obj = {};
         headers.forEach((header, index) => {
-            obj[header] = row[index];
+            if (header === "Date") {
+                const dateObj = new Date(row[index]);
+                // Invalid date object
+                if (isNaN(dateObj.getTime())) {
+                    throw new Error("Invalid date");
+                }
+                obj[header] = convertDateObjToStr(dateObj);
+            } else {
+                obj[header] = row[index];
+            }
         });
         obj["id"] = getRandomString();
         return obj;
@@ -45,25 +55,11 @@ export function getConvertedRowAndColumnData(rawData) {
 function validateHeader(headers) {
     const duplicates = findDuplicates(headers);
 
-    // Check if Date property is present
     if (!headers.includes("Date")) {
-        return {
-            isValid: false,
-            errorMessage: `"Date" is not present in data`,
-        };
-
-        // Check for duplicate columns
+        throw new Error(`"Date" is not present in data`);
     } else if (duplicates.length > 0) {
-        return {
-            isValid: false,
-            errorMessage: `Columns with same names are not allowed`,
-        };
+        throw new Error(`Columns with same names are not allowed`);
     }
-
-    return {
-        isValid: true,
-        errorMessage: null,
-    };
 }
 
 /**
@@ -76,33 +72,22 @@ function validateRows(data) {
 
         // Check if the Value of date is valid
         if (!isValidDate(obj["Date"])) {
-            return {
-                isValid: false,
-                errorMessage: `Invalid date in the data at index ${i}`,
-            };
+            throw new Error(`Invalid date in the data at index ${i}`);
         }
 
         for (const key in obj) {
-            if (key !== "Date") {
-                if (!isNumeric(obj[key])) {
-                    return {
-                        isValid: false,
-                        errorMessage: `Invalid non-numeric value in the data at index ${i} for key "${key}"`,
-                    };
+            if (key !== "Date" && key !== "id") {
+                if (obj[key] !== "" && !isNumeric(obj[key])) {
+                    throw new Error(
+                        `Invalid non-numeric value "${obj[key]}" in the data at index ${i} for key "${key}"`
+                    );
                 }
             }
         }
     }
-    return {
-        isValid: true,
-        errorMessage: null,
-    };
 }
 
 export function runAllValidations(headers, convertedRows) {
-    let result = validateHeader(headers);
-    if (!result.isValid) {
-        return result;
-    }
-    return validateRows(convertedRows);
+    validateHeader(headers);
+    validateRows(convertedRows);
 }
